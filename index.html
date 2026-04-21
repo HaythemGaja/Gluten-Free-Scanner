@@ -40,12 +40,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     
     <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden; /* يمنع تحرك الشاشة بأكملها (Bounce) على الهواتف */
+        }
         body {
             font-family: 'Tajawal', sans-serif;
             background-color: #f3f4f6;
-            margin: 0;
-            padding: 0;
-            height: 100dvh; /* Use dvh for mobile browser compatibility */
             display: flex;
             justify-content: center;
         }
@@ -53,7 +55,8 @@
             width: 100%;
             max-width: 480px;
             background-color: #ffffff;
-            height: 100dvh;
+            height: 100%;
+            max-height: 100%;
             display: flex;
             flex-direction: column;
             box-shadow: 0 0 20px rgba(0,0,0,0.1);
@@ -61,9 +64,10 @@
             overflow: hidden;
         }
         .content-area {
-            flex: 1;
+            flex: 1 1 auto;
             overflow-y: auto;
-            padding-bottom: 180px; /* Increased extra padding so text never hides behind nav */
+            -webkit-overflow-scrolling: touch; /* تمرير سلس جداً على أجهزة iOS/Android */
+            padding-bottom: 120px; /* مساحة آمنة سفلية لعدم إخفاء المحتوى خلف أزرار التنقل */
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
@@ -905,7 +909,18 @@
             document.getElementById('ocr-controls').classList.add('hidden');
         }
 
-        function toggleManualInput() {
+        function analyzeManualText() {
+            const text = document.getElementById('manual-text').value;
+            if(!text.trim()) {
+                showCustomMessage(t('errInput'), 'error');
+                return;
+            }
+            processScannedText(text);
+        }
+
+        function showCustomMessage(msg, type='info') {
+            const div = document.createElement('div');
+            const bg = type === 'error' ? 'bg-red-600' : 'bg-gray-800';
             div.className = `fixed top-5 left-1/2 transform -translate-x-1/2 ${bg} text-white px-6 py-3 rounded-full shadow-xl z-50 text-sm font-bold opacity-0 transition-opacity duration-300 w-11/12 max-w-md text-center`;
             div.innerText = msg;
             document.body.appendChild(div);
