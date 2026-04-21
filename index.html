@@ -45,7 +45,7 @@
             background-color: #f3f4f6;
             margin: 0;
             padding: 0;
-            height: 100vh;
+            height: 100dvh; /* Use dvh for mobile browser compatibility */
             display: flex;
             justify-content: center;
         }
@@ -53,7 +53,7 @@
             width: 100%;
             max-width: 480px;
             background-color: #ffffff;
-            height: 100vh;
+            height: 100dvh;
             display: flex;
             flex-direction: column;
             box-shadow: 0 0 20px rgba(0,0,0,0.1);
@@ -63,7 +63,7 @@
         .content-area {
             flex: 1;
             overflow-y: auto;
-            padding-bottom: 120px; /* Extra padding to ensure explanation is fully visible */
+            padding-bottom: 180px; /* Increased extra padding so text never hides behind nav */
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
@@ -77,14 +77,15 @@
             color: #9ca3af;
             transition: all 0.3s ease;
             cursor: pointer;
-            padding: 10px;
+            padding: 10px 5px;
             flex: 1;
+            text-align: center;
         }
         .nav-item.active {
             color: #10b981;
         }
         .nav-item i { font-size: 1.25rem; margin-bottom: 4px; }
-        .nav-item span { font-size: 0.75rem; font-weight: 500; }
+        .nav-item span { font-size: 0.65rem; font-weight: 700; white-space: nowrap; }
 
         /* Camera Views overrides */
         #barcode-reader { width: 100%; border: none !important; border-radius: 0.5rem; overflow: hidden; }
@@ -100,15 +101,23 @@
             display: inline-block;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .history-card {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
 
     <div class="app-container">
         <!-- Header -->
-        <header class="bg-primary text-white p-4 shadow-md z-10 flex items-center justify-between">
+        <header class="bg-primary text-white p-4 shadow-md z-10 flex items-center justify-between shrink-0">
             <div class="flex items-center gap-3">
-                <div class="bg-white text-primary w-10 h-10 rounded-full flex items-center justify-center text-xl shadow-inner">
+                <div class="bg-white text-primary w-10 h-10 rounded-full flex items-center justify-center text-xl shadow-inner shrink-0">
                     <i class="fa-solid fa-wheat-awn-circle-exclamation"></i>
                 </div>
                 <div>
@@ -116,7 +125,7 @@
                     <p class="text-xs text-green-100" data-i18n="subtitle">Scanner - Libya</p>
                 </div>
             </div>
-            <button onclick="toggleLanguage()" id="lang-toggle" class="text-xs bg-white text-primary px-3 py-1 rounded-md font-bold shadow-sm hover:bg-green-50 transition">
+            <button onclick="toggleLanguage()" id="lang-toggle" class="text-xs bg-white text-primary px-3 py-1 rounded-md font-bold shadow-sm hover:bg-green-50 transition shrink-0">
                 عربي
             </button>
         </header>
@@ -153,7 +162,7 @@
 
             <!-- Tab 2: Barcode Scanner -->
             <div id="tab-barcode" class="p-5 hidden h-full flex-col">
-                <div class="text-center mb-4">
+                <div class="text-center mb-4 shrink-0">
                     <h2 class="font-bold text-gray-800 text-lg" data-i18n="barcodeTitle">Barcode Scanner (Database)</h2>
                     <p class="text-xs text-gray-500 mt-1" data-i18n="barcodeDesc">Searches globally & saves results for offline use</p>
                 </div>
@@ -169,17 +178,17 @@
                     </div>
                 </div>
 
-                <div id="barcode-loading" class="hidden text-center py-4 bg-white rounded-xl shadow-sm border border-gray-100">
+                <div id="barcode-loading" class="hidden text-center py-4 bg-white rounded-xl shadow-sm border border-gray-100 shrink-0">
                     <div class="loader mb-2"></div>
                     <p class="text-sm text-gray-600" data-i18n="searching">Searching database...</p>
                 </div>
 
-                <div id="barcode-result" class="hidden pb-4"></div>
+                <div id="barcode-result" class="hidden pb-8"></div>
             </div>
 
             <!-- Tab 3: OCR Text Scanner -->
             <div id="tab-text" class="p-5 hidden h-full flex-col">
-                <div class="text-center mb-4">
+                <div class="text-center mb-4 shrink-0">
                     <h2 class="font-bold text-gray-800 text-lg" data-i18n="textTitle">Camera Ingredients Analysis</h2>
                     <p class="text-xs text-gray-500 mt-1" data-i18n="textDesc">Use local on-device AI to read and highlight ingredients</p>
                 </div>
@@ -206,15 +215,15 @@
                     </div>
                 </div>
 
-                <div id="ocr-loading" class="hidden text-center py-4 bg-white rounded-xl shadow-sm border border-gray-100 mb-4">
+                <div id="ocr-loading" class="hidden text-center py-4 bg-white rounded-xl shadow-sm border border-gray-100 mb-4 shrink-0">
                     <div class="loader mb-2"></div>
                     <p class="text-sm text-gray-800 font-bold" id="ocr-status-text" data-i18n="ocrInit">Initializing Local AI...</p>
                 </div>
 
-                <div id="text-result" class="hidden mb-4 pb-4"></div>
+                <div id="text-result" class="hidden mb-4 pb-8"></div>
 
                 <!-- Manual Section -->
-                <div class="mt-auto pt-4 border-t border-gray-200">
+                <div class="mt-auto pt-4 border-t border-gray-200 shrink-0">
                     <button onclick="toggleManualInput()" class="text-xs text-gray-500 font-bold w-full text-center mb-2 flex justify-center items-center gap-1">
                         <i class="fa-solid fa-keyboard"></i> <span data-i18n="manualInputText">Or input text manually</span>
                     </button>
@@ -228,13 +237,34 @@
                 </div>
             </div>
 
+            <!-- Tab 4: History -->
+            <div id="tab-history" class="p-5 hidden h-full flex-col">
+                <div class="flex justify-between items-center mb-4 shrink-0">
+                    <div>
+                        <h2 class="font-bold text-gray-800 text-lg" data-i18n="historyTitle">Recent Scans</h2>
+                        <p class="text-xs text-gray-500" data-i18n="historyDesc">Your local scanning history</p>
+                    </div>
+                    <button onclick="clearHistory()" class="text-red-500 hover:bg-red-50 p-2 rounded-lg text-sm font-bold transition flex items-center gap-1">
+                        <i class="fa-solid fa-trash-can"></i> <span data-i18n="clearHistory">Clear</span>
+                    </button>
+                </div>
+                
+                <div id="history-list" class="space-y-3 pb-8">
+                    <!-- History items injected here -->
+                </div>
+            </div>
+
         </main>
 
         <!-- Bottom Navigation -->
-        <nav class="bg-white border-t border-gray-200 flex justify-between absolute bottom-0 w-full z-20 pb-safe shadow-[0_-5px_10px_rgba(0,0,0,0.05)]">
+        <nav class="bg-white border-t border-gray-200 flex justify-between absolute bottom-0 w-full z-20 pb-safe shadow-[0_-5px_10px_rgba(0,0,0,0.05)] shrink-0">
             <div class="nav-item active" onclick="switchTab('home')" id="nav-home">
                 <i class="fa-solid fa-circle-info"></i>
                 <span data-i18n="tabHome">Home</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('history')" id="nav-history">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <span data-i18n="tabHistory">History</span>
             </div>
             <div class="nav-item" onclick="switchTab('barcode')" id="nav-barcode">
                 <i class="fa-solid fa-barcode"></i>
@@ -261,6 +291,7 @@
                 feat2Title: "2. مسح الباركود والتوضيح",
                 feat2Desc: "يبحث في قاعدة البيانات العالمية، يحفظ المنتجات محلياً، ويعرض كافة المكونات مع تظليل مصادر الجلوتين وتوضيح السبب الدقيق لمنعها.",
                 tabHome: "الرئيسية",
+                tabHistory: "السجل",
                 tabBarcode: "الباركود",
                 tabText: "مسح النص",
                 barcodeTitle: "الباركود (قاعدة البيانات)",
@@ -301,9 +332,15 @@
                 bcCertified: "المنتج يحمل شهادة (خالي من الجلوتين).",
                 bcAnalysis: "تم تحليل المكونات.",
                 bcUnknown: "لا تتوفر معلومات كافية عن المكونات.",
-                bcNotFound: "الباركود غير متوفر في قاعدة البيانات المفتوحة.",
+                bcNotFound: "الباركود غير متوفر. تأكد من أن هذا منتج غذائي (المنتجات غير الغذائية غير مدعومة).",
+                errNonFood: "تنبيه: يبدو أن هذا الباركود لا يخص منتجاً غذائياً!",
+                errNonFoodBook: "هذا الباركود يخص كتاباً أو مطبوعة. التطبيق يدعم المنتجات الغذائية فقط.",
                 productLabel: "المنتج",
-                barcodeLabel: "الباركود:"
+                barcodeLabel: "الباركود:",
+                historyTitle: "عمليات المسح الأخيرة",
+                historyDesc: "سجل الفحص المحلي الخاص بك",
+                clearHistory: "مسح",
+                historyEmpty: "لا توجد عمليات مسح سابقة."
             },
             en: {
                 title: "Gluten Free",
@@ -315,6 +352,7 @@
                 feat2Title: "2. Barcode Scanner & Insights",
                 feat2Desc: "Searches the global database, saves products for offline use, and automatically highlights gluten ingredients explaining exactly why it's unsafe.",
                 tabHome: "Home",
+                tabHistory: "History",
                 tabBarcode: "Barcode",
                 tabText: "Text Scan",
                 barcodeTitle: "Barcode Scanner (Database)",
@@ -355,9 +393,15 @@
                 bcCertified: "Product carries a (Gluten-Free) certificate.",
                 bcAnalysis: "Ingredients analyzed successfully.",
                 bcUnknown: "Insufficient ingredient info.",
-                bcNotFound: "Barcode not found in open database.",
+                bcNotFound: "Barcode not found. Ensure this is a food product (non-food items are not supported).",
+                errNonFood: "Alert: This appears to be a non-food product!",
+                errNonFoodBook: "This barcode belongs to a book or publication. The app only supports food products.",
                 productLabel: "Product",
-                barcodeLabel: "Barcode:"
+                barcodeLabel: "Barcode:",
+                historyTitle: "Recent Scans",
+                historyDesc: "Your local scanning history",
+                clearHistory: "Clear",
+                historyEmpty: "No recent scans."
             }
         };
 
@@ -378,10 +422,10 @@
                 }
             });
             document.getElementById('manual-text').placeholder = t('manualInputPlaceholder');
+            renderHistory(); // Re-render to update UI language in history
         }
 
         // --- Refined Keywords & Analysis Logic ---
-        // Removed vague terms like "may contain", "traces of", "manufactured in" to fix False Positives.
         const glutenKeywords = ['قمح', 'جلوتين', 'شعير', 'جاودار', 'دقيق القمح', 'سميد', 'برغل', 'كسكس', 'wheat', 'gluten', 'barley', 'rye', 'malt', 'مستخلص المالت', 'semolina', 'spelt', 'kamut', 'bulgur', 'couscous'];
         const warningKeywords = ['شوفان', 'oats', 'oatmeal', 'brewer', 'yeast extract', 'خميرة بيرة'];
         const explicitFreeKeywords = ['خالي من الجلوتين', 'خال من الجلوتين', 'بدون جلوتين', 'gluten free', 'gluten-free', 'sans gluten'];
@@ -389,7 +433,6 @@
         function evaluateIngredientsText(text) {
             if (!text || text.trim().length < 5) return { level: 0, reason: t('reasonShort') };
             
-            // Hide buckwheat to prevent triggering the "wheat" rule falsely
             let safeText = text.toLowerCase().replace(/buckwheat/g, 'safe-bw');
             
             for (let word of explicitFreeKeywords) {
@@ -413,7 +456,6 @@
             let highlighted = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
             let foundReasons = [];
 
-            // Hide buckwheat temporarily
             highlighted = highlighted.replace(/buckwheat/gi, 'b_u_c_k_w_h_e_a_t');
 
             const applyHighlight = (keywords, bgClass, textClass, reasonKey) => {
@@ -421,7 +463,6 @@
                     const regex = new RegExp(`(${kw})`, 'gi');
                     const before = highlighted;
                     highlighted = highlighted.replace(regex, `<mark class="${bgClass} ${textClass} font-bold px-1 rounded shadow-sm">$1</mark>`);
-                    // If replacement occurred, log the reason
                     if (before !== highlighted) {
                         foundReasons.push(`${reasonKey} <b>${kw}</b>`);
                     }
@@ -432,13 +473,69 @@
             applyHighlight(glutenKeywords, 'bg-red-200', 'text-red-900', t('reason4'));
             applyHighlight(warningKeywords, 'bg-orange-200', 'text-orange-900', t('reason3'));
 
-            // Restore buckwheat so it displays normally to the user without highlights
             highlighted = highlighted.replace(/b_u_c_k_w_h_e_a_t/gi, 'buckwheat');
 
             return { html: highlighted, reasons: [...new Set(foundReasons)] };
         }
 
-        // UI Renderer
+        // --- History Management ---
+        function saveHistory(type, title, level) {
+            let history = JSON.parse(localStorage.getItem('gf_history') || '[]');
+            history.unshift({
+                id: Date.now(),
+                type: type, // 'barcode' or 'text'
+                title: title,
+                level: level,
+                date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+            });
+            if(history.length > 30) history.pop(); // Keep last 30
+            localStorage.setItem('gf_history', JSON.stringify(history));
+            renderHistory();
+        }
+
+        function clearHistory() {
+            localStorage.removeItem('gf_history');
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const list = document.getElementById('history-list');
+            const history = JSON.parse(localStorage.getItem('gf_history') || '[]');
+            
+            if (history.length === 0) {
+                list.innerHTML = `<div class="text-center py-10 text-gray-400"><i class="fa-solid fa-folder-open text-4xl mb-3 opacity-20"></i><p>${t('historyEmpty')}</p></div>`;
+                return;
+            }
+
+            list.innerHTML = history.map(item => {
+                // UI styles based on level
+                const levels = {
+                    1: { color: 'bg-green-50 border-green-500', icon: 'fa-shield-check text-green-500' },
+                    2: { color: 'bg-teal-50 border-teal-500', icon: 'fa-check text-teal-500' },
+                    3: { color: 'bg-orange-50 border-orange-500', icon: 'fa-triangle-exclamation text-orange-500' },
+                    4: { color: 'bg-red-50 border-red-600', icon: 'fa-ban text-red-600' },
+                    0: { color: 'bg-gray-100 border-gray-400', icon: 'fa-circle-question text-gray-500' },
+                };
+                const ui = levels[item.level] || levels[0];
+                const typeIcon = item.type === 'barcode' ? 'fa-barcode' : 'fa-camera';
+                
+                return `
+                    <div class="history-card border-s-4 rounded-xl p-3 shadow-sm flex items-center gap-3 ${ui.color}">
+                        <div class="bg-white w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-sm">
+                            <i class="fa-solid ${ui.icon} text-lg"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-bold text-sm text-gray-800 truncate" dir="auto">${item.title}</h4>
+                            <div class="flex items-center gap-2 mt-1 text-xs text-gray-500">
+                                <i class="fa-solid ${typeIcon}"></i> <span>${item.date}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // UI Renderer for results
         function getLevelUI(level, reasonText = "", isOffline = false) {
             const levels = {
                 1: { title: t('level1'), color: 'bg-green-50 border-green-500 text-green-800', icon: 'fa-shield-check text-green-500' },
@@ -469,8 +566,9 @@
         function switchTab(tabName) {
             if (tabName !== 'barcode') stopBarcodeScanner();
             if (tabName !== 'text') stopOcrCamera();
+            if (tabName === 'history') renderHistory();
 
-            ['home', 'barcode', 'text'].forEach(tab => {
+            ['home', 'history', 'barcode', 'text'].forEach(tab => {
                 document.getElementById(`tab-${tab}`).classList.add('hidden');
                 document.getElementById(`nav-${tab}`).classList.remove('active');
             });
@@ -526,6 +624,15 @@
 
         async function onBarcodeSuccess(decodedText) {
             await stopBarcodeScanner();
+            
+            // Check for Non-Food Barcodes (e.g. Books ISBN starts with 978 or 979)
+            if (decodedText.length >= 10 && (decodedText.startsWith('978') || decodedText.startsWith('979'))) {
+                showCustomMessage(t('errNonFood'), 'error');
+                document.getElementById('barcode-result').innerHTML = getLevelUI(0, t('errNonFoodBook'));
+                document.getElementById('barcode-result').classList.remove('hidden');
+                return;
+            }
+
             document.getElementById('barcode-loading').classList.remove('hidden');
             document.getElementById('barcode-result').classList.add('hidden');
 
@@ -605,8 +712,11 @@
                     ${explanationHtml}
                 `;
                 resultDiv.classList.remove('hidden');
+                
+                // Save to history
+                saveHistory('barcode', name, level);
             } else {
-                resultDiv.innerHTML = getLevelUI(0, `${t('barcodeLabel')} ${decodedText}<br>${t('bcNotFound')}`, isOffline);
+                resultDiv.innerHTML = getLevelUI(0, `${t('barcodeLabel')} ${decodedText}<br><br><span class="text-xs text-red-600 font-bold">${t('bcNotFound')}</span>`, isOffline);
                 resultDiv.classList.remove('hidden');
             }
         }
@@ -724,6 +834,10 @@
                 </button>
             `;
             resultDiv.classList.remove('hidden');
+            
+            // Save to history
+            const titleSnippet = text.trim() ? text.substring(0, 20).replace(/\n/g, ' ') + '...' : t('tabText');
+            saveHistory('text', titleSnippet, analysis.level);
         }
 
         function toggleManualInput() {
@@ -761,7 +875,7 @@
             // --- PWA Service Worker Setup ---
             if ('serviceWorker' in navigator) {
                 const swCode = `
-                    const CACHE_NAME = 'gf-scanner-offline-v3';
+                    const CACHE_NAME = 'gf-scanner-offline-v4';
                     self.addEventListener('install', (e) => e.waitUntil(self.skipWaiting()));
                     self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
                     self.addEventListener('fetch', (e) => {
