@@ -63,7 +63,7 @@
         .content-area {
             flex: 1;
             overflow-y: auto;
-            padding-bottom: 80px; /* Space for bottom nav */
+            padding-bottom: 120px; /* Extra padding to ensure explanation is fully visible */
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
@@ -288,7 +288,7 @@
                 level0: "تعذر قراءة المحتويات",
                 reason1: "تم العثور على عبارة مؤكدة:",
                 reason4: "تم العثور على مكون ممنوع:",
-                reason3: "يوجد تحذير أو مكون مشكوك فيه:",
+                reason3: "يوجد مكون مشكوك فيه (مثل الشوفان):",
                 reason2: "المحتويات لا يوجد بها جلوتين واضح، القرار لك.",
                 reason0: "لم يتم التعرف على محتويات بوضوح كافٍ.",
                 reasonShort: "النص قصير جداً.",
@@ -342,7 +342,7 @@
                 level0: "Could not read contents",
                 reason1: "Found explicit phrase:",
                 reason4: "Found forbidden ingredient:",
-                reason3: "Found warning/suspicious ingredient:",
+                reason3: "Found risky ingredient (like oats):",
                 reason2: "No gluten found in contents. The decision is yours.",
                 reason0: "Contents not recognized clearly enough.",
                 reasonShort: "Enter longer text for an accurate result.",
@@ -380,44 +380,49 @@
             document.getElementById('manual-text').placeholder = t('manualInputPlaceholder');
         }
 
-        // --- Shared Keywords & Analysis Logic ---
-        const glutenKeywords = ['قمح', 'جلوتين', 'شعير', 'جاودار', 'شوفان غير معتمد', 'دقيق القمح', 'سميد', 'wheat', 'gluten', 'barley', 'rye', 'malt', 'مستخلص المالت', 'semolina', 'spelt', 'kamut'];
-        const mayContainKeywords = ['قد يحتوي', 'صنع في منشأة', 'شوفان', 'oats', 'may contain', 'manufactured in', 'traces of', 'produced in a facility'];
+        // --- Refined Keywords & Analysis Logic ---
+        // Removed vague terms like "may contain", "traces of", "manufactured in" to fix False Positives.
+        const glutenKeywords = ['قمح', 'جلوتين', 'شعير', 'جاودار', 'دقيق القمح', 'سميد', 'برغل', 'كسكس', 'wheat', 'gluten', 'barley', 'rye', 'malt', 'مستخلص المالت', 'semolina', 'spelt', 'kamut', 'bulgur', 'couscous'];
+        const warningKeywords = ['شوفان', 'oats', 'oatmeal', 'brewer', 'yeast extract', 'خميرة بيرة'];
         const explicitFreeKeywords = ['خالي من الجلوتين', 'خال من الجلوتين', 'بدون جلوتين', 'gluten free', 'gluten-free', 'sans gluten'];
 
-        // Core Evaluator
         function evaluateIngredientsText(text) {
             if (!text || text.trim().length < 5) return { level: 0, reason: t('reasonShort') };
-            const lowerText = text.toLowerCase();
+            
+            // Hide buckwheat to prevent triggering the "wheat" rule falsely
+            let safeText = text.toLowerCase().replace(/buckwheat/g, 'safe-bw');
+            
             for (let word of explicitFreeKeywords) {
-                if (lowerText.includes(word)) return { level: 1, reason: `${t('reason1')} "${word}"` };
+                if (safeText.includes(word)) return { level: 1, reason: `${t('reason1')} "${word}"` };
             }
             for (let word of glutenKeywords) {
-                if (lowerText.includes(word)) return { level: 4, reason: `${t('reason4')} ${word}` };
+                if (safeText.includes(word)) return { level: 4, reason: `${t('reason4')} ${word}` };
             }
-            for (let word of mayContainKeywords) {
-                if (lowerText.includes(word)) return { level: 3, reason: `${t('reason3')} ${word}` };
+            for (let word of warningKeywords) {
+                if (safeText.includes(word)) return { level: 3, reason: `${t('reason3')} ${word}` };
             }
-            if (lowerText.length > 15) {
+            if (safeText.length > 15) {
                 return { level: 2, reason: t('reason2') };
             }
             return { level: 0, reason: t('reason0') };
         }
 
-        // Highlight Generator
         function highlightIngredients(text) {
             if (!text) return { html: '', reasons: [] };
             
-            // Basic HTML Escape to prevent rendering issues
             let highlighted = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
             let foundReasons = [];
 
+            // Hide buckwheat temporarily
+            highlighted = highlighted.replace(/buckwheat/gi, 'b_u_c_k_w_h_e_a_t');
+
             const applyHighlight = (keywords, bgClass, textClass, reasonKey) => {
-                // Sort by length to highlight longest phrases first
                 [...keywords].sort((a,b)=>b.length-a.length).forEach(kw => {
                     const regex = new RegExp(`(${kw})`, 'gi');
-                    if (regex.test(text)) {
-                        highlighted = highlighted.replace(regex, `<mark class="${bgClass} ${textClass} font-bold px-1 rounded shadow-sm">$1</mark>`);
+                    const before = highlighted;
+                    highlighted = highlighted.replace(regex, `<mark class="${bgClass} ${textClass} font-bold px-1 rounded shadow-sm">$1</mark>`);
+                    // If replacement occurred, log the reason
+                    if (before !== highlighted) {
                         foundReasons.push(`${reasonKey} <b>${kw}</b>`);
                     }
                 });
@@ -425,7 +430,10 @@
 
             applyHighlight(explicitFreeKeywords, 'bg-green-200', 'text-green-900', t('reason1'));
             applyHighlight(glutenKeywords, 'bg-red-200', 'text-red-900', t('reason4'));
-            applyHighlight(mayContainKeywords, 'bg-orange-200', 'text-orange-900', t('reason3'));
+            applyHighlight(warningKeywords, 'bg-orange-200', 'text-orange-900', t('reason3'));
+
+            // Restore buckwheat so it displays normally to the user without highlights
+            highlighted = highlighted.replace(/b_u_c_k_w_h_e_a_t/gi, 'buckwheat');
 
             return { html: highlighted, reasons: [...new Set(foundReasons)] };
         }
@@ -567,7 +575,6 @@
                     level = 0; reason = t('bcUnknown');
                 }
 
-                // Generate Highlighted Ingredients HTML
                 let highlightHtml = "";
                 let explanationHtml = "";
                 
@@ -661,7 +668,6 @@
             statusText.innerText = t('ocrInit');
 
             try {
-                // Initialize local free AI
                 if (!tesseractWorker) {
                     tesseractWorker = await Tesseract.createWorker('eng+ara', 1, {
                         logger: m => {
@@ -676,8 +682,6 @@
                 const { data: { text } } = await tesseractWorker.recognize(canvas);
                 
                 document.getElementById('ocr-loading').classList.add('hidden');
-                
-                // Process the Extracted Text
                 processScannedText(text);
 
             } catch (err) {
@@ -715,7 +719,7 @@
                     <p class="leading-relaxed text-gray-600" dir="auto">${previewText}</p>
                 </div>
                 ${explanationHtml}
-                <button onclick="document.getElementById('ocr-canvas').classList.add('hidden'); startOcrCamera();" class="w-full mt-4 bg-gray-200 text-gray-800 py-3 rounded-xl text-sm font-bold shadow-sm transition hover:bg-gray-300">
+                <button onclick="document.getElementById('ocr-canvas').classList.add('hidden'); startOcrCamera();" class="w-full mt-4 bg-gray-200 text-gray-800 py-3 rounded-xl text-sm font-bold shadow-sm transition hover:bg-gray-300 flex justify-center items-center gap-2">
                     <i class="fa-solid fa-camera"></i> Scan New Image
                 </button>
             `;
@@ -757,7 +761,7 @@
             // --- PWA Service Worker Setup ---
             if ('serviceWorker' in navigator) {
                 const swCode = `
-                    const CACHE_NAME = 'gf-scanner-offline-v2';
+                    const CACHE_NAME = 'gf-scanner-offline-v3';
                     self.addEventListener('install', (e) => e.waitUntil(self.skipWaiting()));
                     self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
                     self.addEventListener('fetch', (e) => {
