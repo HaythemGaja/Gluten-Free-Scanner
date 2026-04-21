@@ -214,6 +214,14 @@
                     </button>
                 </div>
 
+                <!-- RESULT DIV MOVED HERE (Immediately below the text box to be highly visible) -->
+                <div id="text-result" class="hidden mb-4 pb-2 shrink-0"></div>
+
+                <div id="ocr-loading" class="hidden text-center py-4 bg-white rounded-xl shadow-sm border border-gray-100 mb-4 shrink-0">
+                    <div class="loader mb-2"></div>
+                    <p class="text-sm text-gray-800 font-bold" id="ocr-status-text" data-i18n="ocrInit">Initializing Local AI...</p>
+                </div>
+
                 <!-- Camera Section -->
                 <div class="bg-black rounded-xl overflow-hidden relative shadow-lg mb-4 flex-shrink-0" style="min-height: 280px;" id="ocr-camera-container">
                     <video id="ocr-video" class="absolute inset-0 w-full h-full object-cover hidden" playsinline autoplay></video>
@@ -235,13 +243,6 @@
                         </button>
                     </div>
                 </div>
-
-                <div id="ocr-loading" class="hidden text-center py-4 bg-white rounded-xl shadow-sm border border-gray-100 mb-4 shrink-0">
-                    <div class="loader mb-2"></div>
-                    <p class="text-sm text-gray-800 font-bold" id="ocr-status-text" data-i18n="ocrInit">Initializing Local AI...</p>
-                </div>
-
-                <div id="text-result" class="hidden mb-4 pb-8"></div>
             </div>
 
             <!-- Tab 4: History -->
@@ -325,6 +326,7 @@
                 level0: "تعذر قراءة المحتويات",
                 reason1: "تم العثور على عبارة مؤكدة:",
                 reason4: "تم العثور على مكون ممنوع:",
+                reasonStarch: "نشا معدل / رمز (E) قد يُستخرج من القمح (يلزم التحقق):",
                 reason3: "يوجد مكون مشكوك فيه (مثل الشوفان):",
                 reason2: "المحتويات لا يوجد بها جلوتين واضح، القرار لك.",
                 reason0: "لم يتم التعرف على محتويات بوضوح كافٍ.",
@@ -385,6 +387,7 @@
                 level0: "Could not read contents",
                 reason1: "Found explicit phrase:",
                 reason4: "Found forbidden ingredient:",
+                reasonStarch: "Modified starch/E-number that may be wheat-derived (Verify source):",
                 reason3: "Found risky ingredient (like oats):",
                 reason2: "No gluten found in contents. The decision is yours.",
                 reason0: "Contents not recognized clearly enough.",
@@ -432,11 +435,13 @@
 
         // --- Refined Keywords & Analysis Logic ---
         const glutenKeywords = ['قمح', 'جلوتين', 'شعير', 'جاودار', 'دقيق القمح', 'سميد', 'برغل', 'كسكس', 'wheat', 'gluten', 'barley', 'rye', 'malt', 'مستخلص المالت', 'semolina', 'spelt', 'kamut', 'bulgur', 'couscous'];
-        const warningKeywords = ['شوفان', 'oats', 'oatmeal', 'brewer', 'yeast extract', 'خميرة بيرة', 'modified starch', 'نشا معدل', 'e1404', 'e1410', 'e1412', 'e1413', 'e1414', 'e1420', 'e1422', 'e1440', 'e1442', 'e1450', 'e1451', 'e1452'];
+        const starchKeywords = ['modified starch', 'نشا معدل', 'e1404', 'e1410', 'e1412', 'e1413', 'e1414', 'e1420', 'e1422', 'e1440', 'e1442', 'e1450', 'e1451', 'e1452'];
+        const warningKeywords = ['شوفان', 'oats', 'oatmeal', 'brewer', 'yeast extract', 'خميرة بيرة'];
         const explicitFreeKeywords = ['خالي من الجلوتين', 'خال من الجلوتين', 'بدون جلوتين', 'gluten free', 'gluten-free', 'sans gluten'];
 
         function evaluateIngredientsText(text) {
-            if (!text || text.trim().length < 5) return { level: 0, reason: t('reasonShort') };
+            // Lowered minimum length from > 15 to >= 2 to support checking single ingredients like "salt" or "E1442"
+            if (!text || text.trim().length < 2) return { level: 0, reason: t('reasonShort') };
             
             let safeText = text.toLowerCase().replace(/buckwheat/g, 'safe-bw');
             
@@ -446,13 +451,15 @@
             for (let word of glutenKeywords) {
                 if (safeText.includes(word)) return { level: 4, reason: `${t('reason4')} ${word}` };
             }
+            for (let word of starchKeywords) {
+                if (safeText.includes(word)) return { level: 3, reason: `${t('reasonStarch')} ${word}` };
+            }
             for (let word of warningKeywords) {
                 if (safeText.includes(word)) return { level: 3, reason: `${t('reason3')} ${word}` };
             }
-            if (safeText.length > 15) {
-                return { level: 2, reason: t('reason2') };
-            }
-            return { level: 0, reason: t('reason0') };
+            
+            // If it passes all checks, it's safe (even if it's a single short word like "tomato")
+            return { level: 2, reason: t('reason2') };
         }
 
         function highlightIngredients(text) {
@@ -476,6 +483,7 @@
 
             applyHighlight(explicitFreeKeywords, 'bg-green-200', 'text-green-900', t('reason1'));
             applyHighlight(glutenKeywords, 'bg-red-200', 'text-red-900', t('reason4'));
+            applyHighlight(starchKeywords, 'bg-orange-200', 'text-orange-900', t('reasonStarch'));
             applyHighlight(warningKeywords, 'bg-orange-200', 'text-orange-900', t('reason3'));
 
             highlighted = highlighted.replace(/b_u_c_k_w_h_e_a_t/gi, 'buckwheat');
@@ -874,30 +882,30 @@
                     <p class="leading-relaxed text-gray-600" dir="auto">${previewText}</p>
                 </div>
                 ${explanationHtml}
-                <button onclick="document.getElementById('ocr-canvas').classList.add('hidden'); startOcrCamera();" class="w-full mt-4 bg-gray-200 text-gray-800 py-3 rounded-xl text-sm font-bold shadow-sm transition hover:bg-gray-300 flex justify-center items-center gap-2">
-                    <i class="fa-solid fa-camera"></i> Scan New Image
+                <button onclick="clearTextResult()" class="w-full mt-4 bg-gray-200 text-gray-800 py-3 rounded-xl text-sm font-bold shadow-sm transition hover:bg-gray-300 flex justify-center items-center gap-2">
+                    <i class="fa-solid fa-rotate-right"></i> <span data-i18n="btnClear">${t('btnClear')}</span>
                 </button>
             `;
             resultDiv.classList.remove('hidden');
+            
+            // Auto scroll to make sure the result is visible
+            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
             
             // Save to history
             const titleSnippet = text.trim() ? text.substring(0, 20).replace(/\n/g, ' ') + '...' : t('tabText');
             saveHistory('text', titleSnippet, analysis.level, text);
         }
 
-        function analyzeManualText() {
-            const text = document.getElementById('manual-text').value;
-            if(!text.trim()) {
-                showCustomMessage(t('errInput'), 'error');
-                return;
-            }
-            processScannedText(text);
+        function clearTextResult() {
+            document.getElementById('text-result').classList.add('hidden');
+            document.getElementById('text-result').innerHTML = '';
+            document.getElementById('manual-text').value = '';
+            document.getElementById('ocr-canvas').classList.add('hidden');
+            document.getElementById('ocr-overlay').classList.remove('hidden');
+            document.getElementById('ocr-controls').classList.add('hidden');
         }
 
-        // --- Utility ---
-        function showCustomMessage(msg, type='info') {
-            const div = document.createElement('div');
-            const bg = type === 'error' ? 'bg-red-600' : 'bg-gray-800';
+        function toggleManualInput() {
             div.className = `fixed top-5 left-1/2 transform -translate-x-1/2 ${bg} text-white px-6 py-3 rounded-full shadow-xl z-50 text-sm font-bold opacity-0 transition-opacity duration-300 w-11/12 max-w-md text-center`;
             div.innerText = msg;
             document.body.appendChild(div);
