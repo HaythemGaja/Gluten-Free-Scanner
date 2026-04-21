@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gluten Free Scanner - Libya</title>
+    
+    <!-- PWA Meta Tags & Manifest -->
+    <meta name="theme-color" content="#10b981">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIj48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjExMiIgZmlsbD0iIzEwYjk4MSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTUlIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMDAiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+R0Y8L3RleHQ+PC9zdmc+">
+    <link rel="manifest" href='data:application/json;charset=utf-8,%7B%22name%22%3A%22Gluten%20Free%20Scanner%22%2C%22short_name%22%3A%22GF%20Scanner%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23ffffff%22%2C%22theme_color%22%3A%22%2310b981%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIj48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjExMiIgZmlsbD0iIzEwYjk4MSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTUlIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMDAiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI%2BR0Y8L3RleHQ%2BPC9zdmc%2B%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D'>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- HTML5 QRCode Scanner for Barcode -->
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#10b981', // Emerald 500
+                        secondary: '#047857', // Emerald 700
+                    },
+                    fontFamily: {
+                        sans: ['Tajawal', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f3f4f6;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+        }
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            background-color: #ffffff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 80px; /* Space for bottom nav */
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .content-area::-webkit-scrollbar { display: none; }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #9ca3af;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            padding: 10px;
+            flex: 1;
+        }
+        .nav-item.active {
+            color: #10b981;
+        }
+        .nav-item i { font-size: 1.25rem; margin-bottom: 4px; }
+        .nav-item span { font-size: 0.75rem; font-weight: 500; }
+
+        /* Camera Views overrides */
+        #barcode-reader { width: 100%; border: none !important; border-radius: 0.5rem; overflow: hidden; }
+        #barcode-reader video { object-fit: cover; border-radius: 0.5rem; }
+
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #10b981;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="bg-primary text-white p-4 shadow-md z-10 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="bg-white text-primary w-10 h-10 rounded-full flex items-center justify-center text-xl shadow-inner">
+                    <i class="fa-solid fa-wheat-awn-circle-exclamation"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight" data-i18n="title">Gluten Free</h1>
+                    <p class="text-xs text-green-100" data-i18n="subtitle">Scanner - Libya</p>
+                </div>
+            </div>
+            <button onclick="toggleLanguage()" id="lang-toggle" class="text-xs bg-white text-primary px-3 py-1 rounded-md font-bold shadow-sm hover:bg-green-50 transition">
+                عربي
+            </button>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="content-area bg-gray-50" id="main-content">
+            
+            <!-- Tab 1: Home/Info -->
+            <div id="tab-home" class="p-5 space-y-5">
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                    <h2 class="text-lg font-bold text-gray-800 mb-2" data-i18n="howItWorks">How does the app work?</h2>
+                    <p class="text-sm text-gray-600 mb-4 leading-relaxed" data-i18n="desc">
+                        Optimized for minimal internet usage and privacy (No AI), featuring:
+                    </p>
+                    
+                    <ul class="space-y-4 text-sm text-gray-700">
+                        <li class="flex items-start gap-3">
+                            <div class="bg-blue-100 text-blue-600 w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-1"><i class="fa-solid fa-paste"></i></div>
+                            <div>
+                                <span class="font-bold block mb-1" data-i18n="feat1Title">1. Offline Ingredient Analysis</span>
+                                <span data-i18n="feat1Desc">Copy ingredients using your phone's native camera text scanner and paste them here for instant local analysis.</span>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="bg-purple-100 text-purple-600 w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-1"><i class="fa-solid fa-barcode"></i></div>
+                            <div>
+                                <span class="font-bold block mb-1" data-i18n="feat2Title">2. Cached Barcode Scanner</span>
+                                <span data-i18n="feat2Desc">Searches the <b>Open Food Facts</b> database and saves scanned products for offline use later.</span>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="bg-green-100 text-green-600 w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-1"><i class="fa-solid fa-bolt"></i></div>
+                            <div>
+                                <span class="font-bold block mb-1" data-i18n="feat3Title">3. Fast & Accurate Results</span>
+                                <span data-i18n="feat3Desc">A rule-based algorithm instead of AI ensures blazing fast, private results.</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Tab 2: Barcode Scanner -->
+            <div id="tab-barcode" class="p-5 hidden h-full flex-col">
+                <div class="text-center mb-4">
+                    <h2 class="font-bold text-gray-800 text-lg" data-i18n="barcodeTitle">Barcode Scanner (Database)</h2>
+                    <p class="text-xs text-gray-500 mt-1" data-i18n="barcodeDesc">Searches globally & saves results for offline use</p>
+                </div>
+                
+                <div class="bg-black rounded-xl overflow-hidden relative shadow-lg mb-4 flex-shrink-0" style="min-height: 280px;">
+                    <div id="barcode-reader" class="absolute inset-0"></div>
+                    <!-- Overlay when stopped -->
+                    <div id="barcode-overlay" class="absolute inset-0 bg-gray-900 flex flex-col items-center justify-center text-white z-10">
+                        <i class="fa-solid fa-barcode text-4xl mb-3 opacity-50"></i>
+                        <button onclick="startBarcodeScanner()" class="bg-primary hover:bg-secondary text-white px-6 py-2 rounded-full font-bold transition shadow-lg flex items-center gap-2">
+                            <i class="fa-solid fa-camera"></i> <span data-i18n="btnStartBarcode">Start Barcode Scanner</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="barcode-loading" class="hidden text-center py-4 bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="loader mb-2"></div>
+                    <p class="text-sm text-gray-600" data-i18n="searching">Searching database...</p>
+                </div>
+
+                <div id="barcode-result" class="hidden"></div>
+            </div>
+
+            <!-- Tab 3: Offline Text Scanner -->
+            <div id="tab-text" class="p-5 hidden h-full flex-col">
+                <div class="text-center mb-4">
+                    <h2 class="font-bold text-gray-800 text-lg" data-i18n="textTitle">Ingredients Analysis</h2>
+                    <p class="text-xs text-gray-500 mt-1" data-i18n="textDesc">Paste ingredients here for instant offline analysis</p>
+                </div>
+
+                <div class="flex-1 flex flex-col">
+                    <textarea id="manual-text" class="w-full border border-gray-300 rounded-xl p-4 text-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none transition resize-none h-48 shadow-sm" placeholder="Type or paste ingredients from camera here..."></textarea>
+                    
+                    <button onclick="analyzeManualText()" class="w-full bg-primary hover:bg-secondary text-white font-bold py-3 rounded-xl mt-4 shadow-md transition flex justify-center items-center gap-2">
+                        <i class="fa-solid fa-magnifying-glass"></i> <span data-i18n="btnManualAnalyze">Analyze Ingredients</span>
+                    </button>
+                    
+                    <button onclick="document.getElementById('manual-text').value = ''; document.getElementById('text-result').classList.add('hidden');" class="w-full text-gray-500 text-sm mt-3 underline">
+                        <span data-i18n="btnClear">Clear text & Restart</span>
+                    </button>
+
+                    <div id="text-result" class="mt-6 hidden mb-4"></div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bg-white border-t border-gray-200 flex justify-between absolute bottom-0 w-full z-20 pb-safe shadow-[0_-5px_10px_rgba(0,0,0,0.05)]">
+            <div class="nav-item active" onclick="switchTab('home')" id="nav-home">
+                <i class="fa-solid fa-circle-info"></i>
+                <span data-i18n="tabHome">Home</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('barcode')" id="nav-barcode">
+                <i class="fa-solid fa-barcode"></i>
+                <span data-i18n="tabBarcode">Barcode</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('text')" id="nav-text">
+                <i class="fa-solid fa-paste"></i>
+                <span data-i18n="tabText">Text Scan</span>
+            </div>
+        </nav>
+    </div>
+
+    <script>
+        // --- Internationalization (i18n) ---
+        let currentLang = 'en';
+        const translations = {
+            ar: {
+                title: "Gluten Free",
+                subtitle: "Scanner - ليبيا",
+                howItWorks: "كيف يعمل التطبيق؟",
+                desc: "تم تحسين التطبيق ليعمل بأقل اعتماد على الإنترنت، وبدون استخدام ذكاء اصطناعي لضمان الخصوصية والسرعة:",
+                feat1Title: "1. تحليل المكونات بدون إنترنت",
+                feat1Desc: "انسخ المكونات باستخدام ميزة قراءة النص المدمجة في كاميرا هاتفك والصقها هنا للتحليل الفوري.",
+                feat2Title: "2. مسح الباركود والتخزين المؤقت",
+                feat2Desc: "يبحث في قاعدة بيانات <b>Open Food Facts</b>، ويحفظ المنتجات التي تم مسحها لتعمل لاحقاً بدون إنترنت.",
+                feat3Title: "3. نتائج سريعة ودقيقة",
+                feat3Desc: "خوارزمية تعتمد على قواعد بيانات للكلمات بدلاً من الذكاء الاصطناعي لضمان السرعة.",
+                tabHome: "الرئيسية",
+                tabBarcode: "الباركود",
+                tabText: "تحليل النص",
+                barcodeTitle: "الباركود (قاعدة البيانات)",
+                barcodeDesc: "يبحث عالمياً ويحفظ النتيجة للعمل بدون إنترنت",
+                btnStartBarcode: "تشغيل الباركود",
+                searching: "جاري البحث في قاعدة البيانات...",
+                textTitle: "تحليل المكونات",
+                textDesc: "ألصق المكونات هنا لتحليلها فورياً بدون إنترنت",
+                manualInputPlaceholder: "اكتب أو انسخ المكونات هنا من الكاميرا...",
+                btnManualAnalyze: "تحليل المكونات",
+                btnClear: "مسح النص وإعادة البدء",
+                btnStop: "إيقاف",
+                level1: "خالي من الجلوتين - مؤكد",
+                level2: "على الأرجح خالي من الجلوتين",
+                level3: "قد يحتوي على الجلوتين",
+                level4: "يحتوي على جلوتين - ممنوع",
+                level0: "تعذر قراءة المحتويات",
+                reason1: "تم العثور على عبارة مؤكدة:",
+                reason4: "تم العثور على مكون ممنوع:",
+                reason3: "يوجد تحذير أو مكون مشكوك فيه:",
+                reason2: "المحتويات لا يوجد بها جلوتين، والقرار لك في تناوله أم لا.",
+                reason0: "لم يتم التعرف على محتويات بوضوح كافٍ.",
+                reasonShort: "أدخل نصاً أطول للحصول على نتيجة دقيقة.",
+                errCamera: "تعذر الوصول للكاميرا.",
+                errServerOffline: "لا يوجد اتصال بالإنترنت والمنتج غير محفوظ مسبقاً.",
+                offlineCached: "أنت تعمل بدون إنترنت: نتيجة محفوظة مسبقاً.",
+                errInput: "أدخل النص أولاً",
+                bcContains: "يحتوي على مكونات جلوتينية واضحة في قاعدة البيانات.",
+                bcMayContain: "قد يحتوي على آثار من الجلوتين بناءً على المصنع.",
+                bcCertified: "المنتج يحمل شهادة أو علامة (خالي من الجلوتين).",
+                bcAnalysis: "تحليل المكونات: ",
+                bcUnknown: "المنتج موجود، لكن لا تتوفر معلومات كافية عن مكوناته.",
+                bcNotFound: "الباركود غير متوفر في قاعدة البيانات المفتوحة. في التطبيق الفعلي ستتمكن من إضافته.",
+                productLabel: "المنتج",
+                barcodeLabel: "الباركود:"
+            },
+            en: {
+                title: "Gluten Free",
+                subtitle: "Scanner - Libya",
+                howItWorks: "How does the app work?",
+                desc: "Optimized for minimal internet usage and privacy (No AI), featuring:",
+                feat1Title: "1. Offline Ingredient Analysis",
+                feat1Desc: "Copy ingredients using your phone's native camera text scanner and paste them here for instant local analysis.",
+                feat2Title: "2. Cached Barcode Scanner",
+                feat2Desc: "Searches the <b>Open Food Facts</b> database and saves scanned products for offline use later.",
+                feat3Title: "3. Fast & Accurate Results",
+                feat3Desc: "A rule-based algorithm instead of AI ensures blazing fast, private results.",
+                tabHome: "Home",
+                tabBarcode: "Barcode",
+                tabText: "Text Scan",
+                barcodeTitle: "Barcode Scanner (Database)",
+                barcodeDesc: "Searches globally & saves results for offline use",
+                btnStartBarcode: "Start Barcode Scanner",
+                searching: "Searching database...",
+                textTitle: "Ingredients Analysis",
+                textDesc: "Paste ingredients here for instant offline analysis",
+                manualInputPlaceholder: "Type or paste ingredients from camera here...",
+                btnManualAnalyze: "Analyze Ingredients",
+                btnClear: "Clear text & Restart",
+                btnStop: "Stop",
+                level1: "Gluten Free - Confirmed",
+                level2: "Likely Gluten Free",
+                level3: "May Contain Gluten",
+                level4: "Contains Gluten - Forbidden",
+                level0: "Could not read contents",
+                reason1: "Found explicit phrase:",
+                reason4: "Found forbidden ingredient:",
+                reason3: "Found warning/suspicious ingredient:",
+                reason2: "No gluten found in contents. The decision to consume is yours.",
+                reason0: "Contents not recognized clearly enough.",
+                reasonShort: "Enter longer text for an accurate result.",
+                errCamera: "Could not access the camera.",
+                errServerOffline: "No internet connection & product not found in local cache.",
+                offlineCached: "Offline Mode: Showing previously saved result.",
+                errInput: "Please enter text first",
+                bcContains: "Contains clear gluten ingredients in the database.",
+                bcMayContain: "May contain traces of gluten based on the facility.",
+                bcCertified: "Product carries a (Gluten-Free) certificate/label.",
+                bcAnalysis: "Ingredients analysis: ",
+                bcUnknown: "Product found, but insufficient ingredient info.",
+                bcNotFound: "Barcode not found in open database. You will be able to add it in the actual app.",
+                productLabel: "Product",
+                barcodeLabel: "Barcode:"
+            }
+        };
+
+        function t(key) {
+            return translations[currentLang][key] || key;
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'ar' ? 'en' : 'ar';
+            document.documentElement.lang = currentLang;
+            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+            document.getElementById('lang-toggle').innerText = currentLang === 'ar' ? 'English' : 'عربي';
+            
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[currentLang][key]) {
+                    el.innerHTML = translations[currentLang][key];
+                }
+            });
+            document.getElementById('manual-text').placeholder = t('manualInputPlaceholder');
+        }
+
+        // --- Shared Keywords & Analysis Logic (Expanded for Robustness) ---
+        const glutenKeywords = ['قمح', 'جلوتين', 'شعير', 'جاودار', 'شوفان غير معتمد', 'دقيق القمح', 'سميد', 'wheat', 'gluten', 'barley', 'rye', 'malt', 'مستخلص المالت', 'semolina', 'spelt', 'kamut'];
+        const mayContainKeywords = ['قد يحتوي', 'صنع في منشأة', 'شوفان', 'oats', 'may contain', 'manufactured in', 'traces of', 'produced in a facility'];
+        const explicitFreeKeywords = ['خالي من الجلوتين', 'خال من الجلوتين', 'بدون جلوتين', 'gluten free', 'gluten-free', 'sans gluten'];
+
+        function evaluateIngredientsText(text) {
+            if (!text || text.trim().length < 5) return { level: 0, reason: t('reasonShort') };
+            
+            const lowerText = text.toLowerCase();
+            
+            for (let word of explicitFreeKeywords) {
+                if (lowerText.includes(word)) return { level: 1, reason: `${t('reason1')} "${word}"` };
+            }
+
+            for (let word of glutenKeywords) {
+                if (lowerText.includes(word)) return { level: 4, reason: `${t('reason4')} ${word}` };
+            }
+
+            for (let word of mayContainKeywords) {
+                if (lowerText.includes(word)) return { level: 3, reason: `${t('reason3')} ${word}` };
+            }
+
+            if (lowerText.length > 15) {
+                return { level: 2, reason: t('reason2') };
+            }
+
+            return { level: 0, reason: t('reason0') };
+        }
+
+        function getLevelUI(level, reasonText = "", isOffline = false) {
+            const levels = {
+                1: { title: t('level1'), color: 'bg-green-50 border-green-500 text-green-800', icon: 'fa-shield-check text-green-500' },
+                2: { title: t('level2'), color: 'bg-teal-50 border-teal-500 text-teal-800', icon: 'fa-check text-teal-500' },
+                3: { title: t('level3'), color: 'bg-orange-50 border-orange-500 text-orange-800', icon: 'fa-triangle-exclamation text-orange-500' },
+                4: { title: t('level4'), color: 'bg-red-50 border-red-600 text-red-800', icon: 'fa-ban text-red-600' },
+                0: { title: t('level0'), color: 'bg-gray-100 border-gray-400 text-gray-800', icon: 'fa-circle-question text-gray-500' },
+            };
+            
+            const ui = levels[level] || levels[0];
+            const offlineBadge = isOffline ? `<div class="bg-yellow-100 text-yellow-800 text-[10px] px-2 py-1 rounded-full mb-3 inline-flex items-center gap-1"><i class="fa-solid fa-wifi-slash"></i> ${t('offlineCached')}</div><br>` : '';
+            
+            return `
+                <div class="border-s-4 rounded-xl p-4 shadow-sm relative ${ui.color}">
+                    ${offlineBadge}
+                    <div class="flex items-center gap-3 mb-2">
+                        <i class="fa-solid ${ui.icon} text-2xl"></i>
+                        <h3 class="font-bold text-lg leading-tight">${ui.title}</h3>
+                    </div>
+                    <div class="bg-white/50 p-2 rounded text-sm mt-2 font-medium">
+                        ${reasonText}
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- Navigation ---
+        function switchTab(tabName) {
+            if (tabName !== 'barcode') stopBarcodeScanner();
+
+            ['home', 'barcode', 'text'].forEach(tab => {
+                document.getElementById(`tab-${tab}`).classList.add('hidden');
+                document.getElementById(`nav-${tab}`).classList.remove('active');
+            });
+
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+            document.getElementById(`tab-${tabName}`).classList.add('flex');
+            document.getElementById(`nav-${tabName}`).classList.add('active');
+        }
+
+        // --- Barcode Scanner Logic (Open Food Facts + Offline Caching) ---
+        let html5QrCode;
+        let isBarcodeScanning = false;
+
+        async function startBarcodeScanner() {
+            document.getElementById('barcode-overlay').classList.add('hidden');
+            document.getElementById('barcode-result').classList.add('hidden');
+            
+            if (!html5QrCode) html5QrCode = new Html5Qrcode("barcode-reader");
+
+            try {
+                await html5QrCode.start(
+                    { facingMode: "environment" }, 
+                    { fps: 10, qrbox: { width: 250, height: 150 } }, 
+                    onBarcodeSuccess, 
+                    (err) => {} 
+                );
+                isBarcodeScanning = true;
+                
+                let stopBtn = document.getElementById('stop-barcode-btn');
+                if(!stopBtn) {
+                    stopBtn = document.createElement('button');
+                    stopBtn.id = 'stop-barcode-btn';
+                    stopBtn.className = 'absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-4 py-1 text-sm rounded-full z-20 shadow-md';
+                    stopBtn.onclick = stopBarcodeScanner;
+                    document.getElementById('barcode-reader').parentElement.appendChild(stopBtn);
+                }
+                stopBtn.innerHTML = '<i class="fa-solid fa-stop"></i> ' + t('btnStop');
+                stopBtn.style.display = 'block';
+            } catch (err) {
+                showCustomMessage(t('errCamera'), 'error');
+                document.getElementById('barcode-overlay').classList.remove('hidden');
+            }
+        }
+
+        async function stopBarcodeScanner() {
+            if (html5QrCode && isBarcodeScanning) {
+                await html5QrCode.stop();
+                isBarcodeScanning = false;
+                document.getElementById('barcode-overlay').classList.remove('hidden');
+                if(document.getElementById('stop-barcode-btn')) document.getElementById('stop-barcode-btn').style.display = 'none';
+            }
+        }
+
+        async function onBarcodeSuccess(decodedText) {
+            await stopBarcodeScanner();
+            document.getElementById('barcode-loading').classList.remove('hidden');
+            document.getElementById('barcode-result').classList.add('hidden');
+
+            const cacheKey = `gf_product_${decodedText}`;
+
+            try {
+                const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${decodedText}.json`);
+                const data = await response.json();
+                
+                // Save to local storage for offline use
+                localStorage.setItem(cacheKey, JSON.stringify(data));
+                
+                processBarcodeData(data, decodedText, false);
+            } catch (err) {
+                // Offline fallback handling
+                const cachedData = localStorage.getItem(cacheKey);
+                if (cachedData) {
+                    processBarcodeData(JSON.parse(cachedData), decodedText, true);
+                } else {
+                    document.getElementById('barcode-loading').classList.add('hidden');
+                    showCustomMessage(t('errServerOffline'), 'error');
+                }
+            }
+        }
+
+        function processBarcodeData(data, decodedText, isOffline) {
+            document.getElementById('barcode-loading').classList.add('hidden');
+            const resultDiv = document.getElementById('barcode-result');
+            
+            if (data.status === 1 && data.product) {
+                const product = data.product;
+                const name = product.product_name_ar || product.product_name || `${t('productLabel')} (${decodedText})`;
+                
+                let level = 0;
+                let reason = "";
+
+                const allergens = product.allergens_tags || [];
+                const traces = product.traces_tags || [];
+                const ingredients = product.ingredients_text || "";
+
+                if (allergens.some(a => a.includes('gluten') || a.includes('wheat') || a.includes('barley'))) {
+                    level = 4; reason = t('bcContains');
+                } else if (traces.some(t => t.includes('gluten') || t.includes('wheat'))) {
+                    level = 3; reason = t('bcMayContain');
+                } else if (product.labels_tags && product.labels_tags.some(l => l.includes('gluten-free'))) {
+                    level = 1; reason = t('bcCertified');
+                } else if (ingredients) {
+                    const analysis = evaluateIngredientsText(ingredients);
+                    level = analysis.level;
+                    reason = t('bcAnalysis') + analysis.reason;
+                } else {
+                    level = 0;
+                    reason = t('bcUnknown');
+                }
+
+                resultDiv.innerHTML = `
+                    <div class="mb-3 text-center bg-gray-200 py-1 px-3 rounded-full text-xs font-bold inline-block mx-auto" dir="auto">${name}</div>
+                    ${getLevelUI(level, reason, isOffline)}
+                `;
+                resultDiv.classList.remove('hidden');
+            } else {
+                resultDiv.innerHTML = getLevelUI(0, `${t('barcodeLabel')} ${decodedText}<br>${t('bcNotFound')}`, isOffline);
+                resultDiv.classList.remove('hidden');
+            }
+        }
+
+        // --- Text Analysis ---
+        function analyzeManualText() {
+            const text = document.getElementById('manual-text').value;
+            const resultDiv = document.getElementById('text-result');
+            
+            if(!text.trim()) {
+                showCustomMessage(t('errInput'), 'error');
+                return;
+            }
+
+            const analysis = evaluateIngredientsText(text);
+            resultDiv.innerHTML = getLevelUI(analysis.level, analysis.reason, false);
+            resultDiv.classList.remove('hidden');
+        }
+
+        // --- Utility ---
+        function showCustomMessage(msg, type='info') {
+            const div = document.createElement('div');
+            const bg = type === 'error' ? 'bg-red-600' : 'bg-gray-800';
+            div.className = `fixed top-5 left-1/2 transform -translate-x-1/2 ${bg} text-white px-6 py-3 rounded-full shadow-xl z-50 text-sm font-bold opacity-0 transition-opacity duration-300 w-11/12 max-w-md text-center`;
+            div.innerText = msg;
+            document.body.appendChild(div);
+            setTimeout(() => div.classList.remove('opacity-0'), 10);
+            setTimeout(() => {
+                div.classList.add('opacity-0');
+                setTimeout(() => div.remove(), 300);
+            }, 3000);
+        }
+
+        // Init
+        window.onload = () => {
+            switchTab('home');
+
+            // --- PWA Service Worker Setup ---
+            if ('serviceWorker' in navigator) {
+                const swCode = `
+                    const CACHE_NAME = 'gf-scanner-offline-v1';
+                    self.addEventListener('install', (e) => e.waitUntil(self.skipWaiting()));
+                    self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
+                    self.addEventListener('fetch', (e) => {
+                        e.respondWith(
+                            caches.match(e.request).then((res) => res || fetch(e.request))
+                        );
+                    });
+                `;
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                navigator.serviceWorker.register(URL.createObjectURL(blob)).catch((err) => {
+                    console.log('PWA Service Worker registered locally (Blob). Note: Some browsers block Blob SW registration for security.', err);
+                });
+            }
+        };
+
+    </script>
+</body>
+</html>
