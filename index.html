@@ -133,6 +133,11 @@
             </button>
         </header>
 
+        <!-- Offline Banner -->
+        <div id="offline-banner" class="bg-yellow-500 text-white text-xs text-center py-1.5 font-bold hidden shadow-inner z-10 transition-all shrink-0">
+            <i class="fa-solid fa-wifi-slash mr-1"></i> <span data-i18n="offlineMode">Offline Mode (Limited Features)</span>
+        </div>
+
         <!-- Main Content Area -->
         <main class="content-area bg-gray-50" id="main-content">
             
@@ -335,6 +340,7 @@
                 reason2: "المحتويات لا يوجد بها جلوتين واضح، القرار لك.",
                 reason0: "لم يتم التعرف على محتويات بوضوح كافٍ.",
                 reasonShort: "النص قصير جداً.",
+                reasonNotFood: "لم يتم التعرف على النص كقائمة مكونات غذائية أو كطعام معروف.",
                 errCamera: "تعذر الوصول للكاميرا.",
                 errServerOffline: "لا يوجد اتصال بالإنترنت والمنتج غير محفوظ مسبقاً.",
                 offlineCached: "أنت تعمل بدون إنترنت: نتيجة محفوظة مسبقاً.",
@@ -352,7 +358,9 @@
                 historyTitle: "عمليات المسح الأخيرة",
                 historyDesc: "سجل الفحص المحلي الخاص بك",
                 clearHistory: "مسح",
-                historyEmpty: "لا توجد عمليات مسح سابقة."
+                historyEmpty: "لا توجد عمليات مسح سابقة.",
+                offlineMode: "وضع غير متصل (ميزات محدودة)",
+                offlineBarcodeErr: "أنت غير متصل بالإنترنت. هذا المنتج غير متوفر محلياً."
             },
             en: {
                 title: "Gluten Free Scanner",
@@ -396,6 +404,7 @@
                 reason2: "No gluten found in contents. The decision is yours.",
                 reason0: "Contents not recognized clearly enough.",
                 reasonShort: "Enter longer text for an accurate result.",
+                reasonNotFood: "Text not recognized as a valid ingredients list or common food item.",
                 errCamera: "Could not access the camera.",
                 errServerOffline: "No internet connection & product not found in local cache.",
                 offlineCached: "Offline Mode: Showing previously saved result.",
@@ -413,7 +422,9 @@
                 historyTitle: "Recent Scans",
                 historyDesc: "Your local scanning history",
                 clearHistory: "Clear",
-                historyEmpty: "No recent scans."
+                historyEmpty: "No recent scans.",
+                offlineMode: "Offline Mode (Limited Features)",
+                offlineBarcodeErr: "You are offline. This product is not in your local cache."
             }
         };
 
@@ -437,11 +448,24 @@
             renderHistory(); // Re-render to update UI language in history
         }
 
+        // --- Network Status Logic ---
+        function updateOnlineStatus() {
+            const offlineBanner = document.getElementById('offline-banner');
+            if (navigator.onLine) {
+                offlineBanner.classList.add('hidden');
+            } else {
+                offlineBanner.classList.remove('hidden');
+            }
+        }
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+
         // --- Refined Keywords & Analysis Logic ---
         const glutenKeywords = ['قمح', 'جلوتين', 'شعير', 'جاودار', 'دقيق القمح', 'سميد', 'برغل', 'كسكس', 'wheat', 'gluten', 'barley', 'rye', 'malt', 'مستخلص المالت', 'semolina', 'spelt', 'kamut', 'bulgur', 'couscous'];
         const starchKeywords = ['modified starch', 'نشا معدل', 'e1404', 'e1410', 'e1412', 'e1413', 'e1414', 'e1420', 'e1422', 'e1440', 'e1442', 'e1450', 'e1451', 'e1452'];
         const warningKeywords = ['شوفان', 'oats', 'oatmeal', 'brewer', 'yeast extract', 'خميرة بيرة'];
         const explicitFreeKeywords = ['خالي من الجلوتين', 'خال من الجلوتين', 'بدون جلوتين', 'gluten free', 'gluten-free', 'sans gluten'];
+        const generalFoodKeywords = ['ماء', 'سكر', 'ملح', 'زيت', 'حليب', 'صويا', 'ذرة', 'طماطم', 'أرز', 'بطاطا', 'نشا', 'طبيعي', 'نكهة', 'لون', 'حمض', 'خلاصة', 'مسحوق', 'صمغ', 'شراب', 'مكونات', 'عصير', 'فيتامين', 'بروتين', 'كاكاو', 'زبدة', 'دجاج', 'لحم', 'سمك', 'بصل', 'ثوم', 'water', 'sugar', 'salt', 'oil', 'milk', 'soy', 'corn', 'tomato', 'rice', 'potato', 'starch', 'natural', 'flavor', 'colour', 'color', 'acid', 'syrup', 'extract', 'gum', 'powder', 'ingredients', 'cocoa', 'butter', 'chicken', 'meat', 'fish', 'onion', 'garlic', 'juice', 'vitamin', 'protein'];
 
         function evaluateIngredientsText(text) {
             // Lowered minimum length from > 15 to >= 2 to support checking single ingredients like "salt" or "E1442"
@@ -462,8 +486,17 @@
                 if (safeText.includes(word)) return { level: 3, reason: `${t('reason3')} ${word}` };
             }
             
-            // If it passes all checks, it's safe (even if it's a single short word like "tomato")
-            return { level: 2, reason: t('reason2') };
+            // Food indicators validation (prevents keyboard-smash/nonsense from being marked as safe)
+            let isFood = false;
+            if (text.includes(',') || text.includes('،') || text.includes(':') || text.includes('-')) isFood = true;
+            if (/[eE]-?\d{3,4}/i.test(text)) isFood = true;
+            if (generalFoodKeywords.some(kw => safeText.includes(kw))) isFood = true;
+
+            if (isFood) {
+                return { level: 2, reason: t('reason2') };
+            } else {
+                return { level: 0, reason: t('reasonNotFood') };
+            }
         }
 
         function highlightIngredients(text) {
@@ -687,6 +720,9 @@
             const cacheKey = `gf_product_${decodedText}`;
 
             try {
+                // If offline, intentionally throw to skip fetch and go straight to cache check
+                if (!navigator.onLine) throw new Error("Offline"); 
+                
                 const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${decodedText}.json`);
                 const data = await response.json();
                 localStorage.setItem(cacheKey, JSON.stringify(data));
@@ -697,7 +733,11 @@
                     processBarcodeData(JSON.parse(cachedData), decodedText, true);
                 } else {
                     document.getElementById('barcode-loading').classList.add('hidden');
-                    showCustomMessage(t('errServerOffline'), 'error');
+                    if (!navigator.onLine) {
+                        showCustomMessage(t('offlineBarcodeErr'), 'error');
+                    } else {
+                        showCustomMessage(t('errServerOffline'), 'error');
+                    }
                 }
             }
         }
@@ -934,16 +974,33 @@
         // Init
         window.onload = () => {
             switchTab('home');
+            updateOnlineStatus();
 
-            // --- PWA Service Worker Setup ---
+            // --- PWA Service Worker Setup (Dynamic Runtime Caching for true offline mode) ---
             if ('serviceWorker' in navigator) {
                 const swCode = `
-                    const CACHE_NAME = 'gf-scanner-offline-v4';
+                    const CACHE_NAME = 'gf-scanner-offline-v5';
                     self.addEventListener('install', (e) => e.waitUntil(self.skipWaiting()));
                     self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
                     self.addEventListener('fetch', (e) => {
+                        // Do not cache the Barcode API responses, let local storage handle it
+                        if (e.request.method !== 'GET' || e.request.url.includes('openfoodfacts.org')) return;
+                        
                         e.respondWith(
-                            caches.match(e.request).then((res) => res || fetch(e.request))
+                            caches.match(e.request).then((cachedRes) => {
+                                if (cachedRes) return cachedRes; // Return from cache if available (UI, Tesseract AI models)
+                                return fetch(e.request).then((netRes) => {
+                                    return caches.open(CACHE_NAME).then((cache) => {
+                                        // Cache successfully fetched resources
+                                        if (e.request.url.startsWith('http')) {
+                                            cache.put(e.request, netRes.clone());
+                                        }
+                                        return netRes;
+                                    });
+                                }).catch(() => {
+                                    // Ignore errors (user is offline)
+                                });
+                            })
                         );
                     });
                 `;
