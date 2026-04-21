@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gluten Free Scanner - Libya</title>
+    <title>Gluten Free Scanner</title>
     
     <!-- PWA Meta Tags & Manifest -->
     <meta name="theme-color" content="#10b981">
@@ -121,8 +121,7 @@
                     <i class="fa-solid fa-wheat-awn-circle-exclamation"></i>
                 </div>
                 <div>
-                    <h1 class="font-bold text-lg leading-tight" data-i18n="title">Gluten Free</h1>
-                    <p class="text-xs text-green-100" data-i18n="subtitle">Scanner - Libya</p>
+                    <h1 class="font-bold text-lg leading-tight" data-i18n="title">Gluten Free Scanner</h1>
                 </div>
             </div>
             <button onclick="toggleLanguage()" id="lang-toggle" class="text-xs bg-white text-primary px-3 py-1 rounded-md font-bold shadow-sm hover:bg-green-50 transition shrink-0">
@@ -183,7 +182,17 @@
                     <p class="text-sm text-gray-600" data-i18n="searching">Searching database...</p>
                 </div>
 
-                <div id="barcode-result" class="hidden pb-8"></div>
+                <div id="barcode-result" class="hidden pb-4"></div>
+
+                <!-- Manual Barcode Entry -->
+                <div class="mt-auto pt-4 border-t border-gray-200 shrink-0">
+                    <div class="flex gap-2">
+                        <input type="number" id="manual-barcode-input" class="flex-1 border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none transition" placeholder="Or enter barcode...">
+                        <button onclick="submitManualBarcode()" class="bg-gray-800 hover:bg-gray-900 text-white px-6 rounded-xl font-bold shadow-md transition flex justify-center items-center">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <!-- Tab 3: OCR Text Scanner -->
@@ -224,14 +233,14 @@
 
                 <!-- Manual Section -->
                 <div class="mt-auto pt-4 border-t border-gray-200 shrink-0">
-                    <button onclick="toggleManualInput()" class="text-xs text-gray-500 font-bold w-full text-center mb-2 flex justify-center items-center gap-1">
+                    <p class="text-xs text-gray-500 font-bold w-full text-center mb-2 flex justify-center items-center gap-1">
                         <i class="fa-solid fa-keyboard"></i> <span data-i18n="manualInputText">Or input text manually</span>
-                    </button>
-                    <div id="manual-input-div" class="hidden">
+                    </p>
+                    <div id="manual-input-div">
                         <textarea id="manual-text" class="w-full border border-gray-300 rounded-xl p-4 text-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none transition resize-none h-32 shadow-sm" placeholder="Type or paste ingredients here..."></textarea>
                         
                         <button onclick="analyzeManualText()" class="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-3 rounded-xl mt-3 shadow-md transition flex justify-center items-center gap-2">
-                            <i class="fa-solid fa-magnifying-glass"></i> <span data-i18n="btnManualAnalyze">Analyze Text</span>
+                            <i class="fa-solid fa-magnifying-glass"></i> <span data-i18n="btnManualAnalyze">Search / Analyze Text</span>
                         </button>
                     </div>
                 </div>
@@ -282,8 +291,7 @@
         let currentLang = 'en';
         const translations = {
             ar: {
-                title: "Gluten Free",
-                subtitle: "Scanner - ليبيا",
+                title: "Gluten Free Scanner",
                 howItWorks: "كيف يعمل التطبيق؟",
                 desc: "تم تحسين التطبيق ليعمل بأقل اعتماد على الإنترنت، وبدون استخدام ذكاء اصطناعي مكلف لضمان الخصوصية والسرعة:",
                 feat1Title: "1. مسح النصوص الذكي بالكاميرا (محلي)",
@@ -309,7 +317,7 @@
                 explanation: "التوضيح والأسباب:",
                 manualInputText: "أو إدخال النص يدوياً",
                 manualInputPlaceholder: "اكتب أو انسخ المكونات هنا...",
-                btnManualAnalyze: "تحليل النص",
+                btnManualAnalyze: "بحث / تحليل النص",
                 btnClear: "مسح النص وإعادة البدء",
                 btnStop: "إيقاف",
                 level1: "خالي من الجلوتين - مؤكد",
@@ -343,8 +351,7 @@
                 historyEmpty: "لا توجد عمليات مسح سابقة."
             },
             en: {
-                title: "Gluten Free",
-                subtitle: "Scanner - Libya",
+                title: "Gluten Free Scanner",
                 howItWorks: "How does the app work?",
                 desc: "Optimized for minimal internet usage and privacy, featuring:",
                 feat1Title: "1. Smart Camera Text Scan (Local AI)",
@@ -370,7 +377,7 @@
                 explanation: "Explanation / Reasons:",
                 manualInputText: "Or input text manually",
                 manualInputPlaceholder: "Type or paste ingredients here...",
-                btnManualAnalyze: "Analyze Text",
+                btnManualAnalyze: "Search / Analyze Text",
                 btnClear: "Clear text & Restart",
                 btnStop: "Stop",
                 level1: "Gluten Free - Confirmed",
@@ -479,13 +486,14 @@
         }
 
         // --- History Management ---
-        function saveHistory(type, title, level) {
+        function saveHistory(type, title, level, data) {
             let history = JSON.parse(localStorage.getItem('gf_history') || '[]');
             history.unshift({
                 id: Date.now(),
                 type: type, // 'barcode' or 'text'
                 title: title,
                 level: level,
+                data: data, // Keep the raw data for reloading
                 date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
             });
             if(history.length > 30) history.pop(); // Keep last 30
@@ -520,7 +528,7 @@
                 const typeIcon = item.type === 'barcode' ? 'fa-barcode' : 'fa-camera';
                 
                 return `
-                    <div class="history-card border-s-4 rounded-xl p-3 shadow-sm flex items-center gap-3 ${ui.color}">
+                    <div onclick="loadHistoryItem(${item.id})" class="history-card border-s-4 rounded-xl p-3 shadow-sm flex items-center gap-3 ${ui.color} cursor-pointer hover:bg-gray-50 transition">
                         <div class="bg-white w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-sm">
                             <i class="fa-solid ${ui.icon} text-lg"></i>
                         </div>
@@ -533,6 +541,22 @@
                     </div>
                 `;
             }).join('');
+        }
+
+        function loadHistoryItem(id) {
+            const history = JSON.parse(localStorage.getItem('gf_history') || '[]');
+            const item = history.find(i => i.id === id);
+            if (!item) return;
+
+            if (item.type === 'barcode') {
+                switchTab('barcode');
+                document.getElementById('manual-barcode-input').value = item.data;
+                onBarcodeSuccess(item.data);
+            } else if (item.type === 'text') {
+                switchTab('text');
+                document.getElementById('manual-text').value = item.data;
+                processScannedText(item.data);
+            }
         }
 
         // UI Renderer for results
@@ -627,12 +651,12 @@
             
             // Check for Non-Food Barcodes (e.g. Books ISBN starts with 978 or 979)
             if (decodedText.length >= 10 && (decodedText.startsWith('978') || decodedText.startsWith('979'))) {
-                showCustomMessage(t('errNonFood'), 'error');
-                document.getElementById('barcode-result').innerHTML = getLevelUI(0, t('errNonFoodBook'));
+                resultDiv.innerHTML = getLevelUI(0, t('errNonFoodBook'));
                 document.getElementById('barcode-result').classList.remove('hidden');
                 return;
             }
 
+            document.getElementById('manual-barcode-input').value = decodedText; // Update manual input field
             document.getElementById('barcode-loading').classList.remove('hidden');
             document.getElementById('barcode-result').classList.add('hidden');
 
@@ -714,11 +738,20 @@
                 resultDiv.classList.remove('hidden');
                 
                 // Save to history
-                saveHistory('barcode', name, level);
+                saveHistory('barcode', name, level, decodedText);
             } else {
                 resultDiv.innerHTML = getLevelUI(0, `${t('barcodeLabel')} ${decodedText}<br><br><span class="text-xs text-red-600 font-bold">${t('bcNotFound')}</span>`, isOffline);
                 resultDiv.classList.remove('hidden');
             }
+        }
+
+        function submitManualBarcode() {
+            const code = document.getElementById('manual-barcode-input').value.trim();
+            if(!code) {
+                showCustomMessage(t('errInput'), 'error');
+                return;
+            }
+            onBarcodeSuccess(code);
         }
 
         // --- Text Scan (OCR via Tesseract Local AI) ---
@@ -837,12 +870,7 @@
             
             // Save to history
             const titleSnippet = text.trim() ? text.substring(0, 20).replace(/\n/g, ' ') + '...' : t('tabText');
-            saveHistory('text', titleSnippet, analysis.level);
-        }
-
-        function toggleManualInput() {
-            const div = document.getElementById('manual-input-div');
-            div.classList.toggle('hidden');
+            saveHistory('text', titleSnippet, analysis.level, text);
         }
 
         function analyzeManualText() {
