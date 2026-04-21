@@ -42,6 +42,7 @@
     <style>
         html, body {
             height: 100%;
+            height: 100dvh; /* التوافق مع الهواتف المحمولة لتجنب قص الشاشة */
             margin: 0;
             overflow: hidden; /* يمنع تحرك الشاشة بأكملها (Bounce) على الهواتف */
         }
@@ -56,7 +57,6 @@
             max-width: 480px;
             background-color: #ffffff;
             height: 100%;
-            max-height: 100%;
             display: flex;
             flex-direction: column;
             box-shadow: 0 0 20px rgba(0,0,0,0.1);
@@ -64,10 +64,10 @@
             overflow: hidden;
         }
         .content-area {
-            flex: 1 1 auto;
+            flex: 1;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch; /* تمرير سلس جداً على أجهزة iOS/Android */
-            padding-bottom: 120px; /* مساحة آمنة سفلية لعدم إخفاء المحتوى خلف أزرار التنقل */
+            padding-bottom: 160px !important; /* مساحة آمنة سفلية كبيرة جداً لعدم إخفاء المحتوى خلف أزرار التنقل */
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
@@ -128,9 +128,14 @@
                     <h1 class="font-bold text-lg leading-tight" data-i18n="title">Gluten Free Scanner</h1>
                 </div>
             </div>
-            <button onclick="toggleLanguage()" id="lang-toggle" class="text-xs bg-white text-primary px-3 py-1 rounded-md font-bold shadow-sm hover:bg-green-50 transition shrink-0">
-                عربي
-            </button>
+            <div class="flex items-center gap-2 shrink-0">
+                <button onclick="window.location.reload()" class="text-xs bg-green-700 text-white w-8 h-8 rounded-md font-bold shadow-sm hover:bg-green-600 transition flex items-center justify-center" aria-label="Refresh">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+                <button onclick="toggleLanguage()" id="lang-toggle" class="text-xs bg-white text-primary px-3 py-1.5 rounded-md font-bold shadow-sm hover:bg-green-50 transition">
+                    عربي
+                </button>
+            </div>
         </header>
 
         <!-- Offline Banner -->
@@ -169,7 +174,7 @@
             </div>
 
             <!-- Tab 2: Barcode Scanner -->
-            <div id="tab-barcode" class="p-5 hidden h-full flex-col">
+            <div id="tab-barcode" class="p-5 hidden min-h-full flex-col">
                 <div class="text-center mb-4 shrink-0">
                     <h2 class="font-bold text-gray-800 text-lg" data-i18n="barcodeTitle">Barcode Scanner (Database)</h2>
                     <p class="text-xs text-gray-500 mt-1" data-i18n="barcodeDesc">Searches globally & saves results for offline use</p>
@@ -205,7 +210,7 @@
             </div>
 
             <!-- Tab 3: OCR Text Scanner -->
-            <div id="tab-text" class="p-5 hidden h-full flex-col">
+            <div id="tab-text" class="p-5 hidden min-h-full flex-col">
                 <div class="text-center mb-4 shrink-0">
                     <h2 class="font-bold text-gray-800 text-lg" data-i18n="textTitle">Camera Ingredients Analysis</h2>
                     <p class="text-xs text-gray-500 mt-1" data-i18n="textDesc">Use local on-device AI to read and highlight ingredients</p>
@@ -255,7 +260,7 @@
             </div>
 
             <!-- Tab 4: History -->
-            <div id="tab-history" class="p-5 hidden h-full flex-col">
+            <div id="tab-history" class="p-5 hidden min-h-full flex-col">
                 <div class="flex justify-between items-center mb-4 shrink-0">
                     <div>
                         <h2 class="font-bold text-gray-800 text-lg" data-i18n="historyTitle">Recent Scans</h2>
@@ -531,6 +536,13 @@
         // --- History Management ---
         function saveHistory(type, title, level, data) {
             let history = JSON.parse(localStorage.getItem('gf_history') || '[]');
+            
+            // Remove existing duplicate entry if found (to update its position to the top)
+            const existingIndex = history.findIndex(item => item.type === type && item.data === data);
+            if (existingIndex !== -1) {
+                history.splice(existingIndex, 1);
+            }
+
             history.unshift({
                 id: Date.now(),
                 type: type, // 'barcode' or 'text'
