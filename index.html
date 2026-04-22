@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
@@ -42,9 +43,9 @@
     <style>
         html, body {
             height: 100%;
-            height: 100dvh; /* التوافق مع الهواتف المحمولة لتجنب قص الشاشة */
+            height: 100dvh;
             margin: 0;
-            overflow: hidden; /* يمنع تحرك الشاشة بأكملها (Bounce) على الهواتف */
+            overflow: hidden; 
         }
         body {
             font-family: 'Tajawal', sans-serif;
@@ -66,8 +67,8 @@
         .content-area {
             flex: 1;
             overflow-y: auto;
-            -webkit-overflow-scrolling: touch; /* تمرير سلس جداً على أجهزة iOS/Android */
-            padding-bottom: 160px !important; /* مساحة آمنة سفلية كبيرة جداً لعدم إخفاء المحتوى خلف أزرار التنقل */
+            -webkit-overflow-scrolling: touch; 
+            padding-bottom: 160px !important; 
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
@@ -91,7 +92,6 @@
         .nav-item i { font-size: 1.25rem; margin-bottom: 4px; }
         .nav-item span { font-size: 0.65rem; font-weight: 700; white-space: nowrap; }
 
-        /* Camera Views overrides */
         #barcode-reader { width: 100%; border: none !important; border-radius: 0.5rem; overflow: hidden; }
         #barcode-reader video { object-fit: cover; border-radius: 0.5rem; }
 
@@ -129,7 +129,7 @@
                 </div>
             </div>
             <div class="flex items-center gap-2 shrink-0">
-                <button onclick="window.location.reload()" class="text-xs bg-green-700 text-white w-8 h-8 rounded-md font-bold shadow-sm hover:bg-green-600 transition flex items-center justify-center" aria-label="Refresh">
+                <button onclick="window.location.reload(true)" class="text-xs bg-green-700 text-white w-8 h-8 rounded-md font-bold shadow-sm hover:bg-green-600 transition flex items-center justify-center" aria-label="Refresh">
                     <i class="fa-solid fa-rotate-right"></i>
                 </button>
                 <button onclick="toggleLanguage()" id="lang-toggle" class="text-xs bg-white text-primary px-3 py-1.5 rounded-md font-bold shadow-sm hover:bg-green-50 transition">
@@ -180,7 +180,7 @@
                     <p class="text-xs text-gray-500 mt-1" data-i18n="barcodeDesc">Searches globally & saves results for offline use</p>
                 </div>
                 
-                <!-- Manual Barcode Entry (Moved to top to prevent keyboard overlap) -->
+                <!-- Manual Barcode Entry -->
                 <div class="mb-4 shrink-0">
                     <div class="flex gap-2">
                         <input type="number" id="manual-barcode-input" class="flex-1 border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none transition shadow-sm" placeholder="Or enter barcode...">
@@ -192,7 +192,6 @@
 
                 <div class="bg-black rounded-xl overflow-hidden relative shadow-lg mb-4 flex-shrink-0" style="min-height: 280px;">
                     <div id="barcode-reader" class="absolute inset-0"></div>
-                    <!-- Overlay when stopped -->
                     <div id="barcode-overlay" class="absolute inset-0 bg-gray-900 flex flex-col items-center justify-center text-white z-10">
                         <i class="fa-solid fa-barcode text-4xl mb-3 opacity-50"></i>
                         <button onclick="startBarcodeScanner()" class="bg-primary hover:bg-secondary text-white px-6 py-2 rounded-full font-bold transition shadow-lg flex items-center gap-2">
@@ -206,7 +205,7 @@
                     <p class="text-sm text-gray-600" data-i18n="searching">Searching database...</p>
                 </div>
 
-                <div id="barcode-result" class="hidden pb-4"></div>
+                <div id="barcode-result" class="hidden pb-4 shrink-0 w-full"></div>
             </div>
 
             <!-- Tab 3: OCR Text Scanner -->
@@ -216,7 +215,7 @@
                     <p class="text-xs text-gray-500 mt-1" data-i18n="textDesc">Use local on-device AI to read and highlight ingredients</p>
                 </div>
 
-                <!-- Manual Section (Moved to top and always visible) -->
+                <!-- Manual Section -->
                 <div class="mb-4 shrink-0 bg-white p-3 rounded-xl shadow-sm border border-gray-200">
                     <p class="text-xs text-gray-600 font-bold mb-2 flex items-center gap-1">
                         <i class="fa-solid fa-keyboard"></i> <span data-i18n="manualInputText">Or input text manually</span>
@@ -228,7 +227,7 @@
                     </button>
                 </div>
 
-                <!-- RESULT DIV MOVED HERE (Immediately below the text box to be highly visible) -->
+                <!-- RESULT DIV MOVED HERE -->
                 <div id="text-result" class="hidden mb-4 pb-2 shrink-0"></div>
 
                 <div id="ocr-loading" class="hidden text-center py-4 bg-white rounded-xl shadow-sm border border-gray-100 mb-4 shrink-0">
@@ -331,7 +330,7 @@
                 manualInputText: "أو إدخال النص يدوياً",
                 manualInputPlaceholder: "اكتب أو انسخ المكونات هنا...",
                 btnManualAnalyze: "بحث / تحليل النص",
-                btnClear: "مسح النص وإعادة البدء",
+                btnClear: "مسح وإعادة البدء",
                 btnStop: "إيقاف",
                 level1: "خالي من الجلوتين - مؤكد",
                 level2: "على الأرجح خالي من الجلوتين",
@@ -345,7 +344,7 @@
                 reason2: "المحتويات لا يوجد بها جلوتين واضح، القرار لك.",
                 reason0: "لم يتم التعرف على محتويات بوضوح كافٍ.",
                 reasonShort: "النص قصير جداً.",
-                reasonNotFood: "لم يتم التعرف على النص كقائمة مكونات غذائية أو كطعام معروف.",
+                reasonNotFood: "لم يتم التعرف على النص كقائمة مكونات غذائية.",
                 errCamera: "تعذر الوصول للكاميرا.",
                 errServerOffline: "لا يوجد اتصال بالإنترنت والمنتج غير محفوظ مسبقاً.",
                 offlineCached: "أنت تعمل بدون إنترنت: نتيجة محفوظة مسبقاً.",
@@ -354,8 +353,9 @@
                 bcMayContain: "المنتج قد يحتوي على آثار من الجلوتين.",
                 bcCertified: "المنتج يحمل شهادة (خالي من الجلوتين).",
                 bcAnalysis: "تم تحليل المكونات.",
-                bcUnknown: "لا تتوفر معلومات كافية عن المكونات.",
-                bcNotFound: "الباركود غير متوفر. تأكد من أن هذا منتج غذائي (المنتجات غير الغذائية غير مدعومة).",
+                bcUnknown: "المنتج موجود، لكن المكونات غير متوفرة في قاعدة البيانات.",
+                btnJumpToText: "صور المكونات بالكاميرا بدلاً من ذلك",
+                bcNotFound: "الباركود غير متوفر. تأكد من أن هذا منتج غذائي.",
                 errNonFood: "تنبيه: يبدو أن هذا الباركود لا يخص منتجاً غذائياً!",
                 errNonFoodBook: "هذا الباركود يخص كتاباً أو مطبوعة. التطبيق يدعم المنتجات الغذائية فقط.",
                 productLabel: "المنتج",
@@ -395,7 +395,7 @@
                 manualInputText: "Or input text manually",
                 manualInputPlaceholder: "Type or paste ingredients here...",
                 btnManualAnalyze: "Search / Analyze Text",
-                btnClear: "Clear text & Restart",
+                btnClear: "Clear & Restart",
                 btnStop: "Stop",
                 level1: "Gluten Free - Confirmed",
                 level2: "Likely Gluten Free",
@@ -409,7 +409,7 @@
                 reason2: "No gluten found in contents. The decision is yours.",
                 reason0: "Contents not recognized clearly enough.",
                 reasonShort: "Enter longer text for an accurate result.",
-                reasonNotFood: "Text not recognized as a valid ingredients list or common food item.",
+                reasonNotFood: "Text not recognized as a valid ingredients list.",
                 errCamera: "Could not access the camera.",
                 errServerOffline: "No internet connection & product not found in local cache.",
                 offlineCached: "Offline Mode: Showing previously saved result.",
@@ -418,8 +418,9 @@
                 bcMayContain: "Product may contain traces of gluten.",
                 bcCertified: "Product carries a (Gluten-Free) certificate.",
                 bcAnalysis: "Ingredients analyzed successfully.",
-                bcUnknown: "Insufficient ingredient info.",
-                bcNotFound: "Barcode not found. Ensure this is a food product (non-food items are not supported).",
+                bcUnknown: "Product found, but database lacks ingredient list.",
+                btnJumpToText: "Scan Ingredients with Camera instead",
+                bcNotFound: "Barcode not found. Ensure this is a food product.",
                 errNonFood: "Alert: This appears to be a non-food product!",
                 errNonFoodBook: "This barcode belongs to a book or publication. The app only supports food products.",
                 productLabel: "Product",
@@ -450,7 +451,7 @@
                 }
             });
             document.getElementById('manual-text').placeholder = t('manualInputPlaceholder');
-            renderHistory(); // Re-render to update UI language in history
+            renderHistory(); 
         }
 
         // --- Network Status Logic ---
@@ -473,7 +474,6 @@
         const generalFoodKeywords = ['ماء', 'سكر', 'ملح', 'زيت', 'حليب', 'صويا', 'ذرة', 'طماطم', 'أرز', 'بطاطا', 'نشا', 'طبيعي', 'نكهة', 'لون', 'حمض', 'خلاصة', 'مسحوق', 'صمغ', 'شراب', 'مكونات', 'عصير', 'فيتامين', 'بروتين', 'كاكاو', 'زبدة', 'دجاج', 'لحم', 'سمك', 'بصل', 'ثوم', 'water', 'sugar', 'salt', 'oil', 'milk', 'soy', 'corn', 'tomato', 'rice', 'potato', 'starch', 'natural', 'flavor', 'colour', 'color', 'acid', 'syrup', 'extract', 'gum', 'powder', 'ingredients', 'cocoa', 'butter', 'chicken', 'meat', 'fish', 'onion', 'garlic', 'juice', 'vitamin', 'protein'];
 
         function evaluateIngredientsText(text) {
-            // Lowered minimum length from > 15 to >= 2 to support checking single ingredients like "salt" or "E1442"
             if (!text || text.trim().length < 2) return { level: 0, reason: t('reasonShort') };
             
             let safeText = text.toLowerCase().replace(/buckwheat/g, 'safe-bw');
@@ -491,7 +491,6 @@
                 if (safeText.includes(word)) return { level: 3, reason: `${t('reason3')} ${word}` };
             }
             
-            // Food indicators validation (prevents keyboard-smash/nonsense from being marked as safe)
             let isFood = false;
             if (text.includes(',') || text.includes('،') || text.includes(':') || text.includes('-')) isFood = true;
             if (/[eE]-?\d{3,4}/i.test(text)) isFood = true;
@@ -537,7 +536,6 @@
         function saveHistory(type, title, level, data) {
             let history = JSON.parse(localStorage.getItem('gf_history') || '[]');
             
-            // Remove existing duplicate entry if found (to update its position to the top)
             const existingIndex = history.findIndex(item => item.type === type && item.data === data);
             if (existingIndex !== -1) {
                 history.splice(existingIndex, 1);
@@ -545,13 +543,13 @@
 
             history.unshift({
                 id: Date.now(),
-                type: type, // 'barcode' or 'text'
+                type: type, 
                 title: title,
                 level: level,
-                data: data, // Keep the raw data for reloading
+                data: data, 
                 date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
             });
-            if(history.length > 30) history.pop(); // Keep last 30
+            if(history.length > 30) history.pop(); 
             localStorage.setItem('gf_history', JSON.stringify(history));
             renderHistory();
         }
@@ -571,7 +569,6 @@
             }
 
             list.innerHTML = history.map(item => {
-                // UI styles based on level
                 const levels = {
                     1: { color: 'bg-green-50 border-green-500', icon: 'fa-shield-check text-green-500' },
                     2: { color: 'bg-teal-50 border-teal-500', icon: 'fa-check text-teal-500' },
@@ -614,7 +611,6 @@
             }
         }
 
-        // UI Renderer for results
         function getLevelUI(level, reasonText = "", isOffline = false) {
             const levels = {
                 1: { title: t('level1'), color: 'bg-green-50 border-green-500 text-green-800', icon: 'fa-shield-check text-green-500' },
@@ -641,7 +637,6 @@
             `;
         }
 
-        // --- Navigation ---
         function switchTab(tabName) {
             if (tabName !== 'barcode') {
                 stopBarcodeScanner();
@@ -671,7 +666,6 @@
             document.getElementById(`nav-${tabName}`).classList.add('active');
         }
 
-        // --- Barcode Scanner Logic ---
         let html5QrCode;
         let isBarcodeScanning = false;
 
@@ -718,21 +712,20 @@
         async function onBarcodeSuccess(decodedText) {
             await stopBarcodeScanner();
             
-            // Check for Non-Food Barcodes (e.g. Books ISBN starts with 978 or 979)
             if (decodedText.length >= 10 && (decodedText.startsWith('978') || decodedText.startsWith('979'))) {
-                resultDiv.innerHTML = getLevelUI(0, t('errNonFoodBook'));
+                showCustomMessage(t('errNonFood'), 'error');
+                document.getElementById('barcode-result').innerHTML = getLevelUI(0, t('errNonFoodBook'));
                 document.getElementById('barcode-result').classList.remove('hidden');
                 return;
             }
 
-            document.getElementById('manual-barcode-input').value = decodedText; // Update manual input field
+            document.getElementById('manual-barcode-input').value = decodedText; 
             document.getElementById('barcode-loading').classList.remove('hidden');
             document.getElementById('barcode-result').classList.add('hidden');
 
             const cacheKey = `gf_product_${decodedText}`;
 
             try {
-                // If offline, intentionally throw to skip fetch and go straight to cache check
                 if (!navigator.onLine) throw new Error("Offline"); 
                 
                 const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${decodedText}.json`);
@@ -805,15 +798,24 @@
                     }
                 }
 
+                let jumpToOcrBtn = "";
+                if (level === 0) {
+                    jumpToOcrBtn = `
+                        <button onclick="switchTab('text')" class="w-full mt-4 bg-blue-600 text-white py-3 rounded-xl text-sm font-bold shadow-sm transition hover:bg-blue-700 flex justify-center items-center gap-2">
+                            <i class="fa-solid fa-camera"></i> ${t('btnJumpToText')}
+                        </button>
+                    `;
+                }
+
                 resultDiv.innerHTML = `
                     <div class="mb-3 text-center bg-gray-200 py-1 px-3 rounded-full text-xs font-bold inline-block mx-auto shadow-sm" dir="auto">${name}</div>
                     ${getLevelUI(level, reason, isOffline)}
                     ${highlightHtml}
                     ${explanationHtml}
+                    ${jumpToOcrBtn}
                 `;
                 resultDiv.classList.remove('hidden');
                 
-                // Save to history
                 saveHistory('barcode', name, level, decodedText);
             } else {
                 resultDiv.innerHTML = getLevelUI(0, `${t('barcodeLabel')} ${decodedText}<br><br><span class="text-xs text-red-600 font-bold">${t('bcNotFound')}</span>`, isOffline);
@@ -830,7 +832,6 @@
             onBarcodeSuccess(code);
         }
 
-        // --- Text Scan (OCR via Tesseract Local AI) ---
         let ocrStream = null;
         let tesseractWorker = null;
 
@@ -944,10 +945,8 @@
             `;
             resultDiv.classList.remove('hidden');
             
-            // Auto scroll to make sure the result is visible
             resultDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
             
-            // Save to history
             const titleSnippet = text.trim() ? text.substring(0, 20).replace(/\n/g, ' ') + '...' : t('tabText');
             saveHistory('text', titleSnippet, analysis.level, text);
         }
@@ -983,46 +982,54 @@
             }, 3000);
         }
 
-        // Init
         window.onload = () => {
             switchTab('home');
             updateOnlineStatus();
 
-            // --- PWA Service Worker Setup (Dynamic Runtime Caching for true offline mode) ---
             if ('serviceWorker' in navigator) {
                 const swCode = `
-                    const CACHE_NAME = 'gf-scanner-offline-v5';
+                    const CACHE_NAME = 'gf-scanner-offline-v6';
                     self.addEventListener('install', (e) => e.waitUntil(self.skipWaiting()));
-                    self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
+                    
+                    self.addEventListener('activate', (e) => {
+                        e.waitUntil(
+                            caches.keys().then((keyList) => {
+                                return Promise.all(keyList.map((key) => {
+                                    if (key !== CACHE_NAME) {
+                                        return caches.delete(key);
+                                    }
+                                }));
+                            })
+                        );
+                        return self.clients.claim();
+                    });
+
                     self.addEventListener('fetch', (e) => {
-                        // Do not cache the Barcode API responses, let local storage handle it
                         if (e.request.method !== 'GET' || e.request.url.includes('openfoodfacts.org')) return;
                         
                         e.respondWith(
                             caches.match(e.request).then((cachedRes) => {
-                                if (cachedRes) return cachedRes; // Return from cache if available (UI, Tesseract AI models)
+                                if (cachedRes) return cachedRes; 
                                 return fetch(e.request).then((netRes) => {
                                     return caches.open(CACHE_NAME).then((cache) => {
-                                        // Cache successfully fetched resources
                                         if (e.request.url.startsWith('http')) {
                                             cache.put(e.request, netRes.clone());
                                         }
                                         return netRes;
                                     });
-                                }).catch(() => {
-                                    // Ignore errors (user is offline)
-                                });
+                                }).catch(() => {});
                             })
                         );
                     });
                 `;
                 const blob = new Blob([swCode], { type: 'application/javascript' });
-                navigator.serviceWorker.register(URL.createObjectURL(blob)).catch((err) => {
-                    console.log('PWA Service Worker note:', err);
-                });
+                navigator.serviceWorker.register(URL.createObjectURL(blob)).catch((err) => {});
             }
         };
 
     </script>
 </body>
 </html>
+
+
+```
