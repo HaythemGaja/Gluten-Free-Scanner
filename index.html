@@ -157,8 +157,8 @@
                         <li class="flex items-start gap-3">
                             <div class="bg-purple-100 text-purple-600 w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-1"><i class="fa-solid fa-barcode"></i></div>
                             <div>
-                                <span class="font-bold block mb-1" data-i18n="feat2Title">1. Barcode Scanner & Insights</span>
-                                <span data-i18n="feat2Desc">Searches the global database, saves products for offline use, and automatically highlights gluten ingredients explaining exactly why it's unsafe.</span>
+                                <span class="font-bold block mb-1" data-i18n="feat2Title">1. Multi-Database Barcode Scanner</span>
+                                <span data-i18n="feat2Desc">Searches multiple global databases (Open Food Facts, USDA, UPCitemdb), saves products offline, and automatically highlights gluten ingredients.</span>
                             </div>
                         </li>
                         <li class="flex items-start gap-3">
@@ -176,7 +176,7 @@
             <div id="tab-barcode" class="p-5 hidden min-h-full flex-col">
                 <div class="text-center mb-4 shrink-0">
                     <h2 class="font-bold text-gray-800 text-lg" data-i18n="barcodeTitle">Barcode Scanner (Database)</h2>
-                    <p class="text-xs text-gray-500 mt-1" data-i18n="barcodeDesc">Searches globally & saves results for offline use</p>
+                    <p class="text-xs text-gray-500 mt-1" data-i18n="barcodeDesc">Searches globally across multiple databases</p>
                 </div>
                 
                 <!-- Manual Barcode Entry -->
@@ -201,7 +201,7 @@
 
                 <div id="barcode-loading" class="hidden text-center py-4 bg-white rounded-xl shadow-sm border border-gray-100 shrink-0">
                     <div class="loader mb-2"></div>
-                    <p class="text-sm text-gray-600" data-i18n="searching">Searching database...</p>
+                    <p class="text-sm text-gray-600" data-i18n="searchingMulti">Searching multiple databases...</p>
                 </div>
 
                 <div id="barcode-result" class="hidden pb-4 shrink-0 w-full"></div>
@@ -306,17 +306,17 @@
                 howItWorks: "كيف يعمل التطبيق؟",
                 desc: "تم تحسين التطبيق ليعمل بأقل اعتماد على الإنترنت، وبدون استخدام ذكاء اصطناعي مكلف لضمان الخصوصية والسرعة:",
                 feat1Title: "1. مسح النصوص الذكي بالكاميرا (محلي)",
-                feat1Desc: "وجه الكاميرا نحو المكونات. يستخدم التطبيق محرك ذكاء اصطناعي محلي ومجاني بالكامل ليقرأ النص ويظلل المواد الممنوعة بوضوح، مع احترام تام للخصوصية.",
-                feat2Title: "2. مسح الباركود والتوضيح",
-                feat2Desc: "يبحث في قاعدة البيانات العالمية، يحفظ المنتجات محلياً، ويعرض كافة المكونات مع تظليل مصادر الجلوتين وتوضيح السبب الدقيق لمنعها.",
+                feat1Desc: "وجه الكاميرا نحو المكونات. يستخدم التطبيق محرك ذكاء اصطناعي محلي ليقرأ النص ويظلل المواد الممنوعة بوضوح، مع احترام تام للخصوصية.",
+                feat2Title: "2. مسح الباركود متعدد المصادر",
+                feat2Desc: "يبحث في قواعد بيانات عالمية متعددة (Open Food Facts، USDA، وغيرها)، يحفظ المنتجات محلياً، ويعرض كافة المكونات مع تظليل مصادر الجلوتين.",
                 tabHome: "الرئيسية",
                 tabHistory: "السجل",
                 tabBarcode: "الباركود",
                 tabText: "مسح النص",
-                barcodeTitle: "الباركود (قاعدة البيانات)",
-                barcodeDesc: "يبحث عالمياً ويحفظ النتيجة ويحلل المكونات",
+                barcodeTitle: "الباركود (قواعد البيانات)",
+                barcodeDesc: "يبحث عالمياً في قواعد بيانات متعددة",
                 btnStartBarcode: "تشغيل الباركود",
-                searching: "جاري البحث في قاعدة البيانات...",
+                searchingMulti: "جاري البحث في قواعد بيانات متعددة...",
                 textTitle: "مسح المكونات بالكاميرا",
                 textDesc: "استخدم الذكاء الاصطناعي المحلي لقراءة وتظليل المكونات",
                 btnStartCamera: "تشغيل الكاميرا لمسح النص",
@@ -326,6 +326,7 @@
                 extractedText: "النص المستخرج:",
                 ingredientsList: "قائمة المكونات:",
                 explanation: "التوضيح والأسباب:",
+                dataSource: "مصدر البيانات:",
                 manualInputText: "أو إدخال النص يدوياً",
                 manualInputPlaceholder: "اكتب أو انسخ المكونات هنا...",
                 btnManualAnalyze: "بحث / تحليل النص",
@@ -372,16 +373,16 @@
                 desc: "Optimized for minimal internet usage and privacy, featuring:",
                 feat1Title: "1. Smart Camera Text Scan (Local AI)",
                 feat1Desc: "Point your camera at ingredients. Uses a free, on-device AI engine (0 cost, highly private) to read text and highlight allergens clearly.",
-                feat2Title: "2. Barcode Scanner & Insights",
-                feat2Desc: "Searches the global database, saves products for offline use, and automatically highlights gluten ingredients explaining exactly why it's unsafe.",
+                feat2Title: "2. Multi-Database Barcode Scanner",
+                feat2Desc: "Searches multiple global databases (Open Food Facts, USDA, etc), saves products for offline use, and automatically highlights gluten.",
                 tabHome: "Home",
                 tabHistory: "History",
                 tabBarcode: "Barcode",
                 tabText: "Text Scan",
                 barcodeTitle: "Barcode Scanner (Database)",
-                barcodeDesc: "Searches globally, saves locally & analyzes ingredients",
+                barcodeDesc: "Searches globally across multiple databases",
                 btnStartBarcode: "Start Barcode Scanner",
-                searching: "Searching database...",
+                searchingMulti: "Searching multiple databases...",
                 textTitle: "Camera Ingredients Analysis",
                 textDesc: "Use local on-device AI to read and highlight ingredients",
                 btnStartCamera: "Start Camera Scan",
@@ -391,6 +392,7 @@
                 extractedText: "Extracted Text:",
                 ingredientsList: "Ingredients List:",
                 explanation: "Explanation / Reasons:",
+                dataSource: "Data source:",
                 manualInputText: "Or input text manually",
                 manualInputPlaceholder: "Type or paste ingredients here...",
                 btnManualAnalyze: "Search / Analyze Text",
@@ -708,6 +710,68 @@
             }
         }
 
+        // Waterfall Database Search
+        async function searchAllDatabases(barcode) {
+            let result = { found: false, name: '', ingredients: '', source: '' };
+
+            // 1. Open Food Facts
+            try {
+                const offRes = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
+                if (offRes.ok) {
+                    const offData = await offRes.json();
+                    if (offData.status === 1 && offData.product) {
+                        return {
+                            found: true,
+                            name: offData.product.product_name_ar || offData.product.product_name || `${t('productLabel')} (${barcode})`,
+                            ingredients: offData.product.ingredients_text_en || offData.product.ingredients_text_ar || offData.product.ingredients_text || "",
+                            allergens: offData.product.allergens_tags || [],
+                            traces: offData.product.traces_tags || [],
+                            labels: offData.product.labels_tags || [],
+                            source: 'Open Food Facts'
+                        };
+                    }
+                }
+            } catch (e) { console.warn('OFF error', e); }
+
+            // 2. USDA FoodData Central (using public DEMO_KEY, limits apply)
+            try {
+                const usdaRes = await fetch(`https://api.nal.usda.gov/fdc/v1/foods/search?query=${barcode}&api_key=DEMO_KEY`);
+                if (usdaRes.ok) {
+                    const usdaData = await usdaRes.json();
+                    if (usdaData.foods && usdaData.foods.length > 0) {
+                        const food = usdaData.foods[0];
+                        return {
+                            found: true,
+                            name: food.description || `${t('productLabel')} (${barcode})`,
+                            ingredients: food.ingredients || "",
+                            allergens: [], traces: [], labels: [],
+                            source: 'USDA FoodData Central'
+                        };
+                    }
+                }
+            } catch (e) { console.warn('USDA error', e); }
+
+            // 3. UPCitemdb (Free public endpoint)
+            try {
+                const upcRes = await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${barcode}`);
+                if (upcRes.ok) {
+                    const upcData = await upcRes.json();
+                    if (upcData.code === "OK" && upcData.items && upcData.items.length > 0) {
+                        const item = upcData.items[0];
+                        return {
+                            found: true,
+                            name: item.title || `${t('productLabel')} (${barcode})`,
+                            ingredients: item.description || "", 
+                            allergens: [], traces: [], labels: [],
+                            source: 'UPCitemdb'
+                        };
+                    }
+                }
+            } catch (e) { console.warn('UPCitemdb error', e); }
+
+            return result; // Not found
+        }
+
         async function onBarcodeSuccess(decodedText) {
             await stopBarcodeScanner();
             
@@ -722,19 +786,31 @@
             document.getElementById('barcode-loading').classList.remove('hidden');
             document.getElementById('barcode-result').classList.add('hidden');
 
-            const cacheKey = `gf_product_${decodedText}`;
+            const cacheKey = `gf_product_unified_${decodedText}`;
 
             try {
                 if (!navigator.onLine) throw new Error("Offline"); 
                 
-                const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${decodedText}.json`);
-                const data = await response.json();
-                localStorage.setItem(cacheKey, JSON.stringify(data));
-                processBarcodeData(data, decodedText, false);
+                const result = await searchAllDatabases(decodedText);
+                if (result.found) {
+                    localStorage.setItem(cacheKey, JSON.stringify(result));
+                }
+                processUnifiedBarcodeData(result, decodedText, false);
             } catch (err) {
                 const cachedData = localStorage.getItem(cacheKey);
+                // Backwards compatibility with previous cache structure
+                const oldCache = localStorage.getItem(`gf_product_${decodedText}`);
+
                 if (cachedData) {
-                    processBarcodeData(JSON.parse(cachedData), decodedText, true);
+                    processUnifiedBarcodeData(JSON.parse(cachedData), decodedText, true);
+                } else if (oldCache) {
+                    // Force user to rescan online to get the new unified structure, or just say offline
+                    document.getElementById('barcode-loading').classList.add('hidden');
+                    if (!navigator.onLine) {
+                        showCustomMessage(t('offlineBarcodeErr'), 'error');
+                    } else {
+                        showCustomMessage(t('errServerOffline'), 'error');
+                    }
                 } else {
                     document.getElementById('barcode-loading').classList.add('hidden');
                     if (!navigator.onLine) {
@@ -746,16 +822,15 @@
             }
         }
 
-        function processBarcodeData(data, decodedText, isOffline) {
+        function processUnifiedBarcodeData(result, decodedText, isOffline) {
             document.getElementById('barcode-loading').classList.add('hidden');
             const resultDiv = document.getElementById('barcode-result');
             
-            if (data.status === 1 && data.product) {
-                const product = data.product;
-                const name = product.product_name_ar || product.product_name || `${t('productLabel')} (${decodedText})`;
-                const allergens = product.allergens_tags || [];
-                const traces = product.traces_tags || [];
-                const ingredientsText = product.ingredients_text_en || product.ingredients_text_ar || product.ingredients_text || "";
+            if (result.found) {
+                const name = result.name;
+                const allergens = result.allergens || [];
+                const traces = result.traces || [];
+                const ingredientsText = result.ingredients || "";
                 
                 let level = 0;
                 let reason = "";
@@ -764,7 +839,7 @@
                     level = 4; reason = t('bcContains');
                 } else if (traces.some(t => t.includes('gluten') || t.includes('wheat'))) {
                     level = 3; reason = t('bcMayContain');
-                } else if (product.labels_tags && product.labels_tags.some(l => l.includes('gluten-free'))) {
+                } else if (result.labels && result.labels.some(l => l.includes('gluten-free'))) {
                     level = 1; reason = t('bcCertified');
                 } else if (ingredientsText) {
                     const analysis = evaluateIngredientsText(ingredientsText);
@@ -806,12 +881,15 @@
                     `;
                 }
 
+                const sourceHtml = `<div class="text-center text-[10px] text-gray-400 mt-3 flex justify-center items-center gap-1"><i class="fa-solid fa-database"></i> ${t('dataSource')} ${result.source}</div>`;
+
                 resultDiv.innerHTML = `
                     <div class="mb-3 text-center bg-gray-200 py-1 px-3 rounded-full text-xs font-bold inline-block mx-auto shadow-sm" dir="auto">${name}</div>
                     ${getLevelUI(level, reason, isOffline)}
                     ${highlightHtml}
                     ${explanationHtml}
                     ${jumpToOcrBtn}
+                    ${sourceHtml}
                 `;
                 resultDiv.classList.remove('hidden');
                 
@@ -987,7 +1065,7 @@
 
             if ('serviceWorker' in navigator) {
                 const swCode = `
-                    const CACHE_NAME = 'gf-scanner-offline-v6';
+                    const CACHE_NAME = 'gf-scanner-offline-v7';
                     self.addEventListener('install', (e) => e.waitUntil(self.skipWaiting()));
                     
                     self.addEventListener('activate', (e) => {
@@ -1004,7 +1082,7 @@
                     });
 
                     self.addEventListener('fetch', (e) => {
-                        if (e.request.method !== 'GET' || e.request.url.includes('openfoodfacts.org')) return;
+                        if (e.request.method !== 'GET' || e.request.url.includes('openfoodfacts.org') || e.request.url.includes('usda.gov') || e.request.url.includes('upcitemdb.com')) return;
                         
                         e.respondWith(
                             caches.match(e.request).then((cachedRes) => {
