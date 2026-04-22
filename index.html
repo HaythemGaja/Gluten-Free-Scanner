@@ -142,6 +142,35 @@
             <i class="fa-solid fa-wifi-slash mr-1"></i> <span data-i18n="offlineMode">Offline Mode (Limited Features)</span>
         </div>
 
+        <!-- Contribute Modal -->
+        <div id="contribute-modal" class="fixed inset-0 bg-black/60 z-50 hidden flex-col items-center justify-center p-4 backdrop-blur-sm opacity-0 transition-opacity">
+            <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl transform scale-95 transition-transform flex flex-col max-h-[90dvh]" id="contribute-modal-content">
+                <div class="flex justify-between items-center mb-4 shrink-0">
+                    <h3 class="font-bold text-lg text-gray-800" data-i18n="contributeTitle">المساهمة في قاعدة البيانات</h3>
+                    <button onclick="closeContributeModal()" class="text-gray-400 hover:text-gray-600 text-xl"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                
+                <div class="overflow-y-auto flex-1 pb-2">
+                    <p class="text-xs text-gray-500 mb-4" data-i18n="contributeDesc">تساعد مساهمتك آلاف المرضى. سيتم إرسال هذه البيانات إلى Open Food Facts.</p>
+                    
+                    <input type="hidden" id="contribute-barcode">
+                    
+                    <label class="block text-xs font-bold text-gray-700 mb-1" data-i18n="productNameLabel">اسم المنتج (اختياري)</label>
+                    <input type="text" id="contribute-name" class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-primary outline-none mb-3" placeholder="مثال: بسكويت الشوكولاتة">
+                    
+                    <label class="block text-xs font-bold text-gray-700 mb-1" data-i18n="ingredientsLabel">قائمة المكونات (مهم جداً)</label>
+                    <textarea id="contribute-ingredients" class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-primary outline-none resize-none h-32 mb-2" placeholder="اكتب المكونات مفصولة بفواصل..."></textarea>
+                </div>
+
+                <div class="flex gap-2 mt-2 shrink-0">
+                    <button onclick="closeContributeModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl transition text-sm" data-i18n="btnCancel">إلغاء</button>
+                    <button onclick="submitContribution()" id="btn-submit-contribute" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition flex justify-center items-center gap-2 text-sm shadow-md">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> <span data-i18n="btnSubmit">إرسال</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Main Content Area -->
         <main class="content-area bg-gray-50" id="main-content">
             
@@ -356,6 +385,9 @@
                 bcUnknown: "المنتج موجود، لكن المكونات غير متوفرة في قاعدة البيانات.",
                 btnJumpToText: "صور المكونات بالكاميرا بدلاً من ذلك",
                 bcNotFound: "الباركود غير متوفر. تأكد من أن هذا منتج غذائي.",
+                btnAddProduct: "إضافة المنتج لقاعدة البيانات",
+                btnAddIngredients: "تحديث المكونات في القاعدة",
+                offNotice: "يفتح موقع Open Food Facts المفتوح للمساهمة.",
                 errNonFood: "تنبيه: يبدو أن هذا الباركود لا يخص منتجاً غذائياً!",
                 errNonFoodBook: "هذا الباركود يخص كتاباً أو مطبوعة. التطبيق يدعم المنتجات الغذائية فقط.",
                 productLabel: "المنتج",
@@ -365,7 +397,15 @@
                 clearHistory: "مسح",
                 historyEmpty: "لا توجد عمليات مسح سابقة.",
                 offlineMode: "وضع غير متصل (ميزات محدودة)",
-                offlineBarcodeErr: "أنت غير متصل بالإنترنت. هذا المنتج غير متوفر محلياً."
+                offlineBarcodeErr: "أنت غير متصل بالإنترنت. هذا المنتج غير متوفر محلياً.",
+                contributeTitle: "المساهمة في قاعدة البيانات",
+                contributeDesc: "تساعد مساهمتك آلاف المرضى. سيتم إرسال هذه البيانات إلى Open Food Facts.",
+                productNameLabel: "اسم المنتج (اختياري)",
+                ingredientsLabel: "قائمة المكونات (مهم جداً)",
+                btnCancel: "إلغاء",
+                btnSubmit: "إرسال البيانات",
+                successContribute: "تم الإرسال بنجاح! شكراً لمساهمتك.",
+                errContribute: "حدث خطأ أثناء الإرسال، حاول لاحقاً."
             },
             en: {
                 title: "Gluten Free Scanner",
@@ -422,6 +462,9 @@
                 bcUnknown: "Product found, but database lacks ingredient list.",
                 btnJumpToText: "Scan Ingredients with Camera instead",
                 bcNotFound: "Barcode not found. Ensure this is a food product.",
+                btnAddProduct: "Add Product to Database",
+                btnAddIngredients: "Update Ingredients in DB",
+                offNotice: "Opens Open Food Facts to contribute.",
                 errNonFood: "Alert: This appears to be a non-food product!",
                 errNonFoodBook: "This barcode belongs to a book or publication. The app only supports food products.",
                 productLabel: "Product",
@@ -431,7 +474,15 @@
                 clearHistory: "Clear",
                 historyEmpty: "No recent scans.",
                 offlineMode: "Offline Mode (Limited Features)",
-                offlineBarcodeErr: "You are offline. This product is not in your local cache."
+                offlineBarcodeErr: "You are offline. This product is not in your local cache.",
+                contributeTitle: "Contribute to Database",
+                contributeDesc: "Your contribution helps thousands. Data is sent to Open Food Facts.",
+                productNameLabel: "Product Name (Optional)",
+                ingredientsLabel: "Ingredients List (Very Important)",
+                btnCancel: "Cancel",
+                btnSubmit: "Submit Data",
+                successContribute: "Submitted successfully! Thank you.",
+                errContribute: "Error submitting data, please try again."
             }
         };
 
@@ -873,12 +924,21 @@
                 }
 
                 let jumpToOcrBtn = "";
+                let contributeBtn = "";
                 if (level === 0) {
                     jumpToOcrBtn = `
                         <button onclick="switchTab('text')" class="w-full mt-4 bg-blue-600 text-white py-3 rounded-xl text-sm font-bold shadow-sm transition hover:bg-blue-700 flex justify-center items-center gap-2">
                             <i class="fa-solid fa-camera"></i> ${t('btnJumpToText')}
                         </button>
                     `;
+                    
+                    if (!isOffline && navigator.onLine) {
+                        contributeBtn = `
+                            <button onclick="openContributeModal('${decodedText}', '${name.replace(/'/g, "\\'")}')" class="w-full mt-3 bg-green-600 text-white py-3 rounded-xl text-sm font-bold shadow-sm transition hover:bg-green-700 flex justify-center items-center gap-2">
+                                <i class="fa-solid fa-file-pen"></i> ${t('btnAddIngredients')}
+                            </button>
+                        `;
+                    }
                 }
 
                 const sourceHtml = `<div class="text-center text-[10px] text-gray-400 mt-3 flex justify-center items-center gap-1"><i class="fa-solid fa-database"></i> ${t('dataSource')} ${result.source}</div>`;
@@ -889,14 +949,108 @@
                     ${highlightHtml}
                     ${explanationHtml}
                     ${jumpToOcrBtn}
+                    ${contributeBtn}
                     ${sourceHtml}
                 `;
                 resultDiv.classList.remove('hidden');
                 
                 saveHistory('barcode', name, level, decodedText);
             } else {
-                resultDiv.innerHTML = getLevelUI(0, `${t('barcodeLabel')} ${decodedText}<br><br><span class="text-xs text-red-600 font-bold">${t('bcNotFound')}</span>`, isOffline);
+                let contributeBtn = "";
+                if (!isOffline && navigator.onLine) {
+                    contributeBtn = `
+                        <button onclick="openContributeModal('${decodedText}', '')" class="w-full mt-4 bg-green-600 text-white py-3 rounded-xl text-sm font-bold shadow-sm transition hover:bg-green-700 flex justify-center items-center gap-2">
+                            <i class="fa-solid fa-plus"></i> ${t('btnAddProduct')}
+                        </button>
+                    `;
+                }
+
+                resultDiv.innerHTML = getLevelUI(0, `${t('barcodeLabel')} ${decodedText}<br><br><span class="text-xs text-red-600 font-bold">${t('bcNotFound')}</span>`, isOffline) + contributeBtn;
                 resultDiv.classList.remove('hidden');
+            }
+        }
+
+        // --- Contribute to Open Food Facts ---
+        const modal = document.getElementById('contribute-modal');
+        const modalContent = document.getElementById('contribute-modal-content');
+
+        function openContributeModal(barcode, productName) {
+            document.getElementById('contribute-barcode').value = barcode;
+            document.getElementById('contribute-name').value = productName !== t('productLabel') + ' (' + barcode + ')' ? productName : '';
+            document.getElementById('contribute-ingredients').value = '';
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalContent.classList.remove('scale-95');
+                modalContent.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeContributeModal() {
+            modal.classList.add('opacity-0');
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        async function submitContribution() {
+            if (!navigator.onLine) {
+                showCustomMessage(t('errServerOffline'), 'error');
+                return;
+            }
+
+            const barcode = document.getElementById('contribute-barcode').value;
+            const name = document.getElementById('contribute-name').value.trim();
+            const ingredients = document.getElementById('contribute-ingredients').value.trim();
+
+            if (!ingredients) {
+                showCustomMessage(t('errInput'), 'error');
+                return;
+            }
+
+            const btn = document.getElementById('btn-submit-contribute');
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = `<div class="loader" style="width:16px;height:16px;border-width:2px;"></div>`;
+            btn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('code', barcode);
+            if (name) {
+                formData.append('product_name', name);
+                // Also setting it for Arabic/English explicitly helps Open Food Facts
+                if(currentLang === 'ar') formData.append('product_name_ar', name);
+                else formData.append('product_name_en', name);
+            }
+            formData.append('ingredients_text', ingredients);
+            if(currentLang === 'ar') formData.append('ingredients_text_ar', ingredients);
+            else formData.append('ingredients_text_en', ingredients);
+
+            try {
+                // Open Food Facts Write API endpoint
+                const response = await fetch('https://world.openfoodfacts.org/cgi/product_jqm2.pl', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                
+                // Assuming status 1 is success or it just succeeds without throwing
+                showCustomMessage(t('successContribute'));
+                closeContributeModal();
+                
+                // Optionally auto-refresh the barcode scan to show the new data
+                setTimeout(() => onBarcodeSuccess(barcode), 1500);
+
+            } catch (err) {
+                console.error(err);
+                showCustomMessage(t('errContribute'), 'error');
+            } finally {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
             }
         }
 
